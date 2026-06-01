@@ -1,0 +1,12 @@
+name: ofxreader
+description: CLI and MCP server for reading and querying OFX 2.x (XML) bank and credit-card statements — deterministic JSON output built for LLMs and agents
+url: /projects/ofxreader
+repo: https://github.com/rvanbaalen/ofxreader
+tech:
+  - TypeScript
+  - CLI
+  - MCP
+category: cli
+featured: true
+order: 11
+hover_detail: Query OFX bank statements from the CLI or via MCP

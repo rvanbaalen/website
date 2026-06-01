@@ -1,0 +1,95 @@
+---
+layout: ../../layouts/ProjectLayout.astro
+name: "@rvanbaalen/ofxreader"
+description: "Read and query OFX 2.x (XML) bank and credit-card statements from the CLI or an MCP server"
+repo: "rvanbaalen/ofxreader"
+version: "1.0.0"
+tech: ["TypeScript", "CLI", "MCP", "LLM"]
+---
+
+## Description
+
+`ofxreader` reads **OFX 2.x (XML)** bank and credit-card statement exports and returns clean, deterministic **JSON** — built so LLMs and agents can consume it directly. It ships two front-ends over a single parser:
+
+* a **CLI** (`ofxreader`) for scripting and quick inspection, and
+* an **MCP server** (`ofx-mcp`) so assistants like Claude can query OFX files as a tool.
+
+It runs on Node 24's native TypeScript support, so there is no build step.
+
+## Installation
+
+The package is published to GitHub Packages as `@rvanbaalen/ofxreader`. Point the `@rvanbaalen` scope at the GitHub registry — GitHub Packages requires an authenticated token even for public packages:
+
+```bash
+# ~/.npmrc
+@rvanbaalen:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+```
+
+```bash
+npm install -g @rvanbaalen/ofxreader
+ofxreader --llm
+```
+
+Or run it straight from source:
+
+```bash
+git clone https://github.com/rvanbaalen/ofxreader.git
+cd ofxreader && npm install
+node bin/ofxreader.ts --llm
+```
+
+## CLI usage
+
+```bash
+ofxreader <command> <file.ofx> [options]
+```
+
+Three commands:
+
+* `summary <file>` — per-statement account, currency, statement period, ledger & available balance, transaction counts, and totals.
+* `accounts <file>` — the accounts found in the file.
+* `transactions <file>` — `{ total, count, transactions[] }`, with the optional filters below.
+
+### Transaction filters
+
+* `--from YYYY-MM-DD` / `--to YYYY-MM-DD` — inclusive posted-date range.
+* `--min N` / `--max N` — signed-amount range (use the `=` form for negatives, e.g. `--min=-100`).
+* `--type debit|credit` — money out (`amount < 0`) vs money in (`amount > 0`).
+* `--search TEXT` / `--regex` — case-insensitive match over name + memo + payee.
+* `--account ACCTID` — restrict to a single account.
+* `--limit N` — cap the rows returned (`total` still reports all matches).
+* `--pretty` — indent the JSON (the default is compact, token-efficient output).
+
+### Examples
+
+```bash
+ofxreader summary statement.ofx
+ofxreader transactions statement.ofx --from 2024-01-01 --to 2024-03-31
+ofxreader transactions statement.ofx --type debit --search amazon
+```
+
+Every command emits JSON on stdout; errors come back as JSON on stderr with a code and a non-zero exit status. Run `ofxreader --llm` for a full machine-readable usage guide.
+
+## MCP server
+
+`ofx-mcp` is a stdio MCP server exposing three tools — `ofx_summary`, `ofx_accounts`, and `ofx_transactions` (with the same filters as the CLI) — over the same parser. Add it to an MCP client such as Claude Desktop:
+
+```json
+{
+  "mcpServers": {
+    "ofxreader": {
+      "command": "/absolute/path/to/node",
+      "args": ["/absolute/path/to/ofxreader/bin/ofx-mcp.ts"]
+    }
+  }
+}
+```
+
+Use an absolute path to a Node 24 binary — desktop apps launch with a minimal PATH that won't include an nvm-managed `node`. Restart the client, then ask it to summarize or search any `.ofx` file by path.
+
+## Notes
+
+* Only OFX 2.x (XML) is supported; OFX 1.x (SGML) is rejected with a clear `NOT_OFX2` error.
+* Amounts are signed numbers (negative = money out); dates are normalized to ISO 8601 strings.
+* Versioned releases are published automatically via release-please and GitHub Actions.
