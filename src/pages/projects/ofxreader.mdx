@@ -3,7 +3,7 @@ layout: ../../layouts/ProjectLayout.astro
 name: "@rvanbaalen/ofxreader"
 description: "Read and query OFX 2.x (XML) bank and credit-card statements from the CLI or an MCP server"
 repo: "rvanbaalen/ofxreader"
-version: "1.0.0"
+version: "1.2.0"
 tech: ["TypeScript", "CLI", "MCP", "LLM"]
 ---
 
@@ -18,17 +18,19 @@ It runs on Node 24's native TypeScript support, so there is no build step.
 
 ## Installation
 
-The package is published to GitHub Packages as `@rvanbaalen/ofxreader`. Point the `@rvanbaalen` scope at the GitHub registry — GitHub Packages requires an authenticated token even for public packages:
+Install from npm — it's a public package, no authentication needed:
+
+```bash
+npm install -g @rvanbaalen/ofxreader
+ofxreader --llm
+```
+
+It's also published to GitHub Packages. Unlike npm, GitHub Packages requires an authenticated token even for public packages, so point the `@rvanbaalen` scope at the GitHub registry first:
 
 ```bash
 # ~/.npmrc
 @rvanbaalen:registry=https://npm.pkg.github.com
 //npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
-```
-
-```bash
-npm install -g @rvanbaalen/ofxreader
-ofxreader --llm
 ```
 
 Or run it straight from source:
