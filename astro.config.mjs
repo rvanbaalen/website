@@ -1,3 +1,4 @@
+import { readdirSync, readFileSync } from "node:fs";
 import { defineConfig } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
 import mdx from "@astrojs/mdx";
@@ -10,8 +11,31 @@ if (!process.env.POSTHOG_TOKEN) {
   console.warn("[build] POSTHOG_TOKEN not set — PostHog analytics disabled for this build");
 }
 
+// astro:content can't be imported here, so read article dates straight from frontmatter
+function articleLastmodMap() {
+  const map = new Map();
+  try {
+    for (const file of readdirSync("./src/content/articles")) {
+      if (!/\.mdx?$/.test(file)) continue;
+      const source = readFileSync(`./src/content/articles/${file}`, "utf-8");
+      const date =
+        source.match(/^updatedDate:\s*(\S+)/m)?.[1] ?? source.match(/^date:\s*(\S+)/m)?.[1];
+      if (date) map.set(file.replace(/\.mdx?$/, ""), new Date(date));
+    }
+  } catch {
+    // no articles directory yet
+  }
+  return map;
+}
+const articleDates = articleLastmodMap();
+
 export default defineConfig({
   site: "https://robinvanbaalen.nl",
+  trailingSlash: "never",
+
+  build: {
+    format: "file",
+  },
 
   redirects: {
     "/projects": "/open-source",
@@ -24,7 +48,14 @@ export default defineConfig({
 
   integrations: [
     mdx(),
-    sitemap(),
+    sitemap({
+      serialize(item) {
+        const slug = item.url.match(/\/writing\/([^/]+?)\/?$/)?.[1];
+        const lastmod = slug && articleDates.get(slug);
+        if (lastmod) item.lastmod = lastmod.toISOString();
+        return item;
+      },
+    }),
     ...(process.env.POSTHOG_TOKEN
       ? [
           posthog({
@@ -42,5 +73,7 @@ export default defineConfig({
 
   adapter: cloudflare({
     imageService: "compile",
-  })
+    // astro-og-canvas (CanvasKit WASM) cannot run inside the workerd prerenderer
+    prerenderEnvironment: "node",
+  }),
 });

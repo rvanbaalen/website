@@ -5,9 +5,11 @@ const articles = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/articles" }),
   schema: z.object({
     title: z.string(),
-    description: z.string(),
+    description: z.string().max(160),
     date: z.date(),
+    updatedDate: z.date().optional(),
     tags: z.array(z.string()),
+    ogImage: z.string().optional(),
     draft: z.boolean().default(false),
   }),
 });

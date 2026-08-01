@@ -5,7 +5,7 @@ repo: https://github.com/rvanbaalen/source-to-llm
 tech:
   - TypeScript
   - CLI
-category: package
+category: cli
 featured: true
-order: 8
+order: 10
 hover_detail: Convert code for AI processing

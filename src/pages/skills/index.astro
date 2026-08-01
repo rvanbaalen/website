@@ -39,7 +39,7 @@ const categories = [
   {categories.map(({ key, label }) => {
     const skills = allSkills
       .filter((s) => s.data.category === key)
-      .sort((a, b) => a.data.order - b.data.order);
+      .sort((a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name));
     if (skills.length === 0) return null;
     return (
       <section class="mb-14">

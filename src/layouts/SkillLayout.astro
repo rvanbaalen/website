@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
 import Prose from "../components/Prose.astro";
+import { softwareSourceCodeSchema, breadcrumbSchema, normalizePath } from "../lib/seo";
 
 interface Props {
   frontmatter: {
@@ -18,9 +19,20 @@ interface Props {
 const { name, description, version, author, invoke, install, repo, category = "skill" } = Astro.props.frontmatter;
 const installCmd = `/plugin install ${install}`;
 const categoryLabel = category === "agent" ? "Agent Plugin" : "Skill";
+
+const pagePath = normalizePath(Astro.url.pathname);
+const pageUrl = new URL(pagePath, Astro.site).href;
+const jsonLd = [
+  softwareSourceCodeSchema({ name, description, repo, version, url: pageUrl }),
+  breadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "Agent Skills", path: "/skills" },
+    { name, path: pagePath },
+  ]),
+];
 ---
 
-<BaseLayout title={`${name} — Agent Skills — Robin van Baalen`} description={description}>
+<BaseLayout title={`${name} — Agent Skills — Robin van Baalen`} description={description} jsonLd={jsonLd}>
   <article>
     <header class="mb-10">
       <a

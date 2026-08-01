@@ -1,6 +1,7 @@
 ---
 import { ClientRouter } from "astro:transitions";
 import "../styles/global.css";
+import { normalizePath } from "../lib/seo";
 import TopoPattern from "../components/TopoPattern.astro";
 import Sidebar from "../components/Sidebar.astro";
 import MobileNav from "../components/MobileNav.astro";
@@ -9,16 +10,25 @@ interface Props {
   title: string;
   description?: string;
   ogImage?: string;
+  type?: "website" | "article";
+  publishedTime?: Date;
+  tags?: string[];
+  jsonLd?: object | object[];
 }
 
 const {
   title,
-  description = "Robin van Baalen — Software engineer, consultant, and builder.",
-  ogImage = "https://github.com/rvanbaalen.png",
+  description = "Robin van Baalen — Founder and software engineer. I build products, ship open source, and advise teams on software architecture.",
+  ogImage = new URL("/og/default.png", Astro.site).href,
+  type = "website",
+  publishedTime,
+  tags = [],
+  jsonLd,
 } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const currentPath = Astro.url.pathname;
+const currentPath = normalizePath(Astro.url.pathname);
+const canonicalURL = new URL(currentPath, Astro.site);
+const jsonLdBlocks = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 ---
 
 <!doctype html>
@@ -30,19 +40,34 @@ const currentPath = Astro.url.pathname;
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
 
-    <link
-      rel="icon"
-      type="image/svg+xml"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23161620' stroke='%23333' stroke-width='2'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='32' font-weight='bold' text-anchor='middle' fill='%23eae6dc'%3ER%3C/text%3E%3C/svg%3E"
-    />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="author" content="Robin van Baalen" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d0d12" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7f6f3" />
 
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
-    <meta property="og:image:width" content="400" />
-    <meta property="og:image:height" content="400" />
     <meta property="og:url" content={canonicalURL} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content="Robin van Baalen" />
+    <meta property="og:locale" content="en_US" />
+    {type === "article" && publishedTime && (
+      <meta property="article:published_time" content={publishedTime.toISOString()} />
+    )}
+    {type === "article" && tags.map((tag) => <meta property="article:tag" content={tag} />)}
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    {jsonLdBlocks.map((block) => (
+      <script type="application/ld+json" set:html={JSON.stringify(block)} />
+    ))}
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-DY4RKECQCF"></script>
     <script is:inline>

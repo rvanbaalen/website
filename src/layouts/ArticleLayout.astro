@@ -1,24 +1,45 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
 import Prose from "../components/Prose.astro";
+import { blogPostingSchema, breadcrumbSchema, normalizePath } from "../lib/seo";
 
 interface Props {
   title: string;
   description: string;
   date: Date;
+  updatedDate?: Date;
   tags: string[];
 }
 
-const { title, description, date, tags } = Astro.props;
+const { title, description, date, updatedDate, tags } = Astro.props;
 
 const formattedDate = date.toLocaleDateString("en-US", {
   month: "long",
   day: "numeric",
   year: "numeric",
 });
+
+const pagePath = normalizePath(Astro.url.pathname);
+const pageUrl = new URL(pagePath, Astro.site).href;
+const jsonLd = [
+  blogPostingSchema({ title, description, date, updatedDate, tags, url: pageUrl }),
+  breadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "Writing", path: "/writing" },
+    { name: title, path: pagePath },
+  ]),
+];
 ---
 
-<BaseLayout title={`${title} — Robin van Baalen`} description={description}>
+<BaseLayout
+  title={`${title} — Robin van Baalen`}
+  description={description}
+  type="article"
+  publishedTime={date}
+  tags={tags}
+  ogImage={new URL(`/open-graph${pagePath}.png`, Astro.site).href}
+  jsonLd={jsonLd}
+>
   <article>
     <header class="mb-10">
       <a
