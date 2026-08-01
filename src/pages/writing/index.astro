@@ -5,14 +5,9 @@ import ArticleLedgerRow from "../../components/ArticleLedgerRow.astro";
 import FadeIn from "../../components/FadeIn.astro";
 import KineticHero from "../../components/KineticHero.astro";
 
-const articles = await getCollection("articles", ({ data }) => !data.draft);
-const sorted = articles.sort(
+const allArticles = await getCollection("articles", ({ data }) => !data.draft);
+const articles = allArticles.sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime(),
-);
-
-// Filter out placeholder articles (no real content)
-const realArticles = sorted.filter(
-  (a) => a.body && a.body.trim().length > 100
 );
 ---
 
@@ -21,11 +16,11 @@ const realArticles = sorted.filter(
     <KineticHero transitionName="nav-writing">
       Writing
     </KineticHero>
-    {realArticles.length > 0 ? (
+    {articles.length > 0 ? (
       <>
         <p class="mb-10 text-lg text-muted">I only write when something's worth reading.</p>
         <div>
-          {realArticles.map((article, i) => (
+          {articles.map((article, i) => (
             <FadeIn delay={i * 80}>
               <ArticleLedgerRow
                 title={article.data.title}
