@@ -1,6 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import NavItem from "./NavItem.astro";
+import ThemeSwitch from "./ThemeSwitch.astro";
 import avatarImg from "../../public/images/avatar.png";
 
 interface Props {
@@ -25,7 +26,7 @@ function isActive(href: string, current: string): boolean {
 ---
 
 <div class="sticky top-0 h-screen p-4 pr-0 hidden md:block" transition:name="sidebar" transition:animate="none">
-  <aside class="flex h-full flex-col rounded-xl border border-edge bg-surface/70 backdrop-blur-[16px] p-8 pb-6 transition-colors duration-300">
+  <aside class="flex h-full flex-col rounded-lg border border-edge bg-surface/70 backdrop-blur-[16px] p-8 pb-6 transition-colors duration-300 ease-move">
     <div class="avatar-grayscale relative">
       <Image
         src={avatarImg}
@@ -39,8 +40,8 @@ function isActive(href: string, current: string): boolean {
         <path d="M200,224a96,96,0,0,1-96-96V32" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
       </svg>
     </div>
-    <p class="mb-0.5 text-[15px] font-semibold text-primary">That's me.</p>
-    <p class="mb-7 font-sans text-[13px] leading-snug text-muted">
+    <p class="mb-0.5 text-sm font-semibold text-primary">That's me.</p>
+    <p class="mb-7 font-sans text-xs leading-snug text-muted">
       <span class="font-medium text-secondary">Founder and software engineer.</span> This is my passion, not just my job.
     </p>
     <nav class="relative flex flex-1 flex-col gap-0.5" aria-label="Main navigation" data-sidebar-nav>
@@ -62,142 +63,75 @@ function isActive(href: string, current: string): boolean {
 
     <script>
       function updateActiveNav() {
-        const path = window.location.pathname;
+        const path = window.location.pathname.replace(/\.html$/, "");
         const items = document.querySelectorAll("[data-nav-item]");
         items.forEach((item) => {
           const href = item.getAttribute("href") || "";
           const isActive = href === "/" ? path === "/" : path.startsWith(href);
           if (isActive) {
             item.setAttribute("data-active", "true");
+            item.setAttribute("aria-current", "page");
             item.classList.remove("text-muted", "hover:text-primary");
             item.classList.add("text-accent-bright", "active");
           } else {
             item.removeAttribute("data-active");
+            item.removeAttribute("aria-current");
             item.classList.remove("text-accent-bright", "active");
             item.classList.add("text-muted", "hover:text-primary");
           }
         });
       }
 
+      function moveDotTo(item: Element) {
+        const nav = document.querySelector("[data-sidebar-nav]");
+        const dot = document.querySelector<HTMLElement>("[data-nav-dot]");
+        if (!nav || !dot) return;
+        const navRect = nav.getBoundingClientRect();
+        const itemRect = item.getBoundingClientRect();
+        dot.style.top = `${itemRect.top - navRect.top + itemRect.height / 2 - 2}px`;
+      }
+
       function positionNavDot() {
         updateActiveNav();
-        const nav = document.querySelector("[data-sidebar-nav]");
-        const dot = document.querySelector("[data-nav-dot]") as HTMLElement;
-        const active = document.querySelector("[data-nav-item][data-active]") as HTMLElement;
-        if (!nav || !dot || !active) {
-          if (dot) dot.style.opacity = "0";
+        const dot = document.querySelector<HTMLElement>("[data-nav-dot]");
+        const active = document.querySelector("[data-nav-item][data-active]");
+        if (!dot) return;
+        if (!active) {
+          dot.style.opacity = "0";
           return;
         }
-        const navRect = nav.getBoundingClientRect();
-        const activeRect = active.getBoundingClientRect();
-        const top = activeRect.top - navRect.top + activeRect.height / 2 - 2;
-        dot.style.top = `${top}px`;
+        moveDotTo(active);
         dot.style.opacity = "1";
       }
-      positionNavDot();
-      document.addEventListener("astro:after-swap", positionNavDot);
 
-      // Dot tracks hovered nav item, returns to active on leave
-      document.querySelectorAll("[data-nav-item]").forEach((item) => {
-        item.addEventListener("mouseenter", () => {
-          const nav = document.querySelector("[data-sidebar-nav]");
-          const dot = document.querySelector("[data-nav-dot]") as HTMLElement;
-          if (!nav || !dot) return;
-          const navRect = nav.getBoundingClientRect();
-          const itemRect = item.getBoundingClientRect();
-          dot.style.top = `${itemRect.top - navRect.top + itemRect.height / 2 - 2}px`;
-        });
-        item.addEventListener("mouseleave", () => {
-          positionNavDot();
-        });
+      positionNavDot();
+      document.addEventListener("astro:page-load", positionNavDot);
+
+      // Delegated so listeners survive view-transition DOM swaps:
+      // dot tracks the hovered nav item, returns to active on leave
+      document.addEventListener("mouseover", (e) => {
+        const item = (e.target as Element).closest?.("[data-nav-item]");
+        if (item) moveDotTo(item);
+      });
+      document.addEventListener("mouseout", (e) => {
+        const withinNav = (e.target as Element).closest?.("[data-sidebar-nav]");
+        const stillWithin = (e.relatedTarget as Element | null)?.closest?.("[data-sidebar-nav]");
+        if (withinNav && !stillWithin) positionNavDot();
       });
     </script>
     <div class="mt-auto border-t border-edge pt-4">
-      <div class="relative mb-3 flex h-8 w-full rounded-lg border border-edge bg-[var(--color-base)] p-0.5" data-theme-switch aria-label="Theme switcher" role="radiogroup">
-        <div class="absolute top-0.5 left-0.5 h-[calc(100%-4px)] w-[calc(33.333%-2px)] rounded-md bg-surface-hover transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]" data-theme-slider aria-hidden="true"></div>
-        <button class="group relative z-10 flex flex-1 cursor-pointer items-center justify-center rounded-md text-dim transition-colors duration-150 hover:text-secondary" data-theme-opt="light" role="radio" aria-label="Light mode">
-          <i class="ph ph-sun text-[15px]" aria-hidden="true"></i>
-          <span class="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 rounded-md bg-surface border border-edge px-2 py-0.5 font-sans text-[11px] text-muted opacity-0 transition-opacity duration-150 group-hover:opacity-100 whitespace-nowrap">Light</span>
-        </button>
-        <button class="group relative z-10 flex flex-1 cursor-pointer items-center justify-center rounded-md text-dim transition-colors duration-150 hover:text-secondary" data-theme-opt="auto" role="radio" aria-label="Auto (system)">
-          <i class="ph ph-monitor text-[15px]" aria-hidden="true"></i>
-          <span class="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 rounded-md bg-surface border border-edge px-2 py-0.5 font-sans text-[11px] text-muted opacity-0 transition-opacity duration-150 group-hover:opacity-100 whitespace-nowrap">System</span>
-        </button>
-        <button class="group relative z-10 flex flex-1 cursor-pointer items-center justify-center rounded-md text-dim transition-colors duration-150 hover:text-secondary" data-theme-opt="dark" role="radio" aria-label="Dark mode">
-          <i class="ph ph-moon text-[15px]" aria-hidden="true"></i>
-          <span class="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 rounded-md bg-surface border border-edge px-2 py-0.5 font-sans text-[11px] text-muted opacity-0 transition-opacity duration-150 group-hover:opacity-100 whitespace-nowrap">Dark</span>
-        </button>
+      <div class="mb-3">
+        <ThemeSwitch />
       </div>
-      <script>
-        function initThemeSwitch() {
-          const sw = document.querySelector("[data-theme-switch]");
-          if (!sw || sw.hasAttribute("data-theme-init")) return;
-          sw.setAttribute("data-theme-init", "");
-
-          const slider = sw.querySelector("[data-theme-slider]") as HTMLElement;
-          const opts = sw.querySelectorAll("[data-theme-opt]");
-          const positions = { light: "translateX(0%)", auto: "translateX(100%)", dark: "translateX(200%)" };
-
-          function getSystemTheme() {
-            return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-          }
-
-          function applyTheme(pref: string) {
-            const resolved = pref === "auto" ? getSystemTheme() : pref;
-            document.documentElement.setAttribute("data-theme", resolved);
-          }
-
-          function updateUI() {
-            const pref = localStorage.getItem("theme-pref") || "auto";
-            slider.style.transform = positions[pref as keyof typeof positions] || positions.auto;
-            opts.forEach((opt) => {
-              const val = opt.getAttribute("data-theme-opt");
-              if (val === pref) {
-                opt.classList.remove("text-dim");
-                opt.classList.add("text-primary");
-                opt.setAttribute("aria-checked", "true");
-              } else {
-                opt.classList.remove("text-primary");
-                opt.classList.add("text-dim");
-                opt.setAttribute("aria-checked", "false");
-              }
-            });
-          }
-
-          opts.forEach((opt) => {
-            opt.addEventListener("click", () => {
-              const pref = opt.getAttribute("data-theme-opt") || "auto";
-              localStorage.setItem("theme-pref", pref);
-              if (pref === "auto") {
-                localStorage.removeItem("theme");
-              } else {
-                localStorage.setItem("theme", pref);
-              }
-              applyTheme(pref);
-              updateUI();
-            });
-          });
-
-          window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
-            const pref = localStorage.getItem("theme-pref") || "auto";
-            if (pref === "auto") applyTheme("auto");
-          });
-
-          updateUI();
-          applyTheme(localStorage.getItem("theme-pref") || "auto");
-        }
-        initThemeSwitch();
-        document.addEventListener("astro:after-swap", initThemeSwitch);
-      </script>
       <div class="mb-2.5 flex gap-3.5">
-        <a href="https://github.com/rvanbaalen" target="_blank" rel="noopener noreferrer" class="text-dim text-lg transition-colors duration-150 hover:text-accent-bright" aria-label="GitHub">
+        <a href="https://github.com/rvanbaalen" target="_blank" rel="noopener noreferrer" class="text-dim text-[18px] transition-colors duration-150 hover:text-accent-bright" aria-label="GitHub">
           <i class="ph ph-github-logo" />
         </a>
-        <a href="https://www.linkedin.com/in/robinvanbaalen/" target="_blank" rel="noopener noreferrer" class="text-dim text-lg transition-colors duration-150 hover:text-accent-bright" aria-label="LinkedIn">
+        <a href="https://www.linkedin.com/in/robinvanbaalen/" target="_blank" rel="noopener noreferrer" class="text-dim text-[18px] transition-colors duration-150 hover:text-accent-bright" aria-label="LinkedIn">
           <i class="ph ph-linkedin-logo" />
         </a>
       </div>
-      <p class="font-sans text-[10px] text-dim">&copy; 2026 Robin van Baalen</p>
+      <p class="font-sans text-2xs text-dim">&copy; 2026 Robin van Baalen</p>
     </div>
   </aside>
 </div>

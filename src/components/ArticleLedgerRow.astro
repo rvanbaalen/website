@@ -19,14 +19,14 @@ const formattedDate = date.toLocaleDateString("en-US", {
   href={`/writing/${slug}`}
   class="group grid grid-cols-[auto_1fr] gap-x-6 rounded-md px-4 py-4 transition-[background] duration-150 hover:bg-surface-hover max-sm:grid-cols-1 max-sm:gap-x-0"
 >
-  <span class="font-sans text-[14px] text-dim transition-colors duration-150 group-hover:text-muted whitespace-nowrap pt-0.5">
+  <span class="font-sans text-xs text-dim transition-colors duration-150 group-hover:text-muted whitespace-nowrap pt-0.5">
     {formattedDate}
   </span>
   <div>
     <span class="text-lg font-medium text-primary transition-colors duration-150 group-hover:text-accent-bright">
       {title}
     </span>
-    <p class="mt-0.5 font-sans text-base text-muted transition-colors duration-150 group-hover:text-secondary">
+    <p class="mt-0.5 font-sans text-sm text-muted transition-colors duration-150 group-hover:text-secondary">
       {description}
     </p>
   </div>

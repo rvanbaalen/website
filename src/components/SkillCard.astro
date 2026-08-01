@@ -13,28 +13,28 @@ const { name, description, version, author, invoke, trigger, slug } = Astro.prop
 const installCmd = `/plugin install ${slug}@rvanbaalen`;
 ---
 
-<a
-  href={`/skills/${slug}`}
-  class="group relative flex flex-col gap-3 rounded-lg border border-edge bg-surface p-6 transition-[background,border-color,transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:border-accent-dim hover:bg-surface-hover hover:shadow-[0_4px_24px_var(--color-accent-glow)]"
+{/* Stretched-link card: the title anchor covers the card; the copy button stacks above it */}
+<div
+  class="group relative flex flex-col gap-3 rounded-md border border-edge bg-surface p-6 transition-[background,border-color,transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:border-accent-dim hover:bg-surface-hover hover:shadow-[0_4px_24px_var(--color-accent-glow)]"
 >
   <div class="flex items-start justify-between gap-3">
     <h3 class="text-lg font-medium text-primary transition-colors duration-150 group-hover:text-accent-bright">
-      {name}
+      <a href={`/skills/${slug}`} class="after:absolute after:inset-0">{name}</a>
     </h3>
-    <span class="shrink-0 rounded bg-accent-subtle px-2 py-0.5 font-sans text-[12px] font-medium text-accent-bright">
+    <span class="shrink-0 rounded bg-accent-subtle px-2 py-0.5 font-sans text-2xs font-medium text-accent-bright">
       v{version}
     </span>
   </div>
   <p class="font-sans text-sm leading-relaxed text-muted transition-colors duration-150 group-hover:text-secondary">
     {description}
   </p>
-  <div class="mt-auto flex flex-wrap items-center gap-3 font-sans text-[12px] text-dim">
+  <div class="mt-auto flex flex-wrap items-center gap-3 font-sans text-2xs text-dim">
     <span class="flex items-center gap-1">
       <i class="ph ph-user text-[13px]" aria-hidden="true" />
       {author}
     </span>
     {trigger === "manual" && invoke ? (
-      <code class="rounded bg-[var(--color-base)] px-1.5 py-0.5 font-mono text-[12px] text-muted">
+      <code class="rounded bg-[var(--color-canvas)] px-1.5 py-0.5 font-mono text-2xs text-muted">
         {invoke}
       </code>
     ) : (
@@ -45,43 +45,12 @@ const installCmd = `/plugin install ${slug}@rvanbaalen`;
   </div>
   <button
     type="button"
-    class="copy-install mt-1 flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border border-edge bg-[var(--color-base)] px-3 py-2 font-sans text-[13px] text-muted transition-[background,border-color,color] duration-150 hover:border-accent-dim hover:text-accent-bright"
-    data-install-cmd={installCmd}
+    class="relative z-10 mt-1 flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border border-edge bg-[var(--color-canvas)] px-3 py-2 font-sans text-xs text-muted transition-[background,border-color,color] duration-150 hover:border-accent-dim hover:text-accent-bright"
+    data-copy-cmd={installCmd}
+    data-copy-idle="Install"
     aria-label={`Copy install command for ${name}`}
-    onclick="event.preventDefault(); event.stopPropagation();"
   >
     <i class="ph ph-copy text-[14px] copy-icon" aria-hidden="true" />
     <span class="copy-label" aria-live="polite">Install</span>
   </button>
-</a>
-
-<script>
-  function initCopyButtons() {
-    document.querySelectorAll('.copy-install').forEach((btn) => {
-      if (btn.hasAttribute('data-copy-init')) return;
-      btn.setAttribute('data-copy-init', '');
-
-      btn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const cmd = btn.getAttribute('data-install-cmd');
-        if (!cmd) return;
-        const label = btn.querySelector('.copy-label');
-        const icon = btn.querySelector('.copy-icon');
-        try {
-          await navigator.clipboard.writeText(cmd);
-          if (label) label.textContent = 'Copied!';
-          if (icon) { icon.classList.remove('ph-copy'); icon.classList.add('ph-check'); }
-        } catch {
-          if (label) label.textContent = cmd;
-        }
-        setTimeout(() => {
-          if (label) label.textContent = 'Install';
-          if (icon) { icon.classList.remove('ph-check'); icon.classList.add('ph-copy'); }
-        }, 2000);
-      });
-    });
-  }
-  initCopyButtons();
-  document.addEventListener('astro:after-swap', initCopyButtons);
-</script>
+</div>

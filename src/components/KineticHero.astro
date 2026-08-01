@@ -7,13 +7,13 @@ const { transitionName } = Astro.props;
 ---
 
 <section class="relative mb-16">
-  <div class="pointer-events-none absolute -inset-x-6 -inset-y-20 z-[-1] sm:-inset-x-40" style={`background: radial-gradient(ellipse at 8% 15%, oklch(62% 0.04 260 / var(--gradient-intensity)), transparent 50%);`} aria-hidden="true" />
+  <div class="pointer-events-none absolute -inset-x-6 -inset-y-20 z-[-1] sm:-inset-x-40 [background:radial-gradient(ellipse_at_8%_15%,oklch(62%_0.04_260_/_var(--gradient-intensity)),transparent_50%)]" aria-hidden="true" />
   {transitionName ? (
-    <h1 class="mb-6 text-[36px] font-normal leading-[1.1] tracking-tight text-primary sm:text-[60px]" data-kinetic-hero transition:name={transitionName}>
+    <h1 class="mb-6 text-2xl font-normal text-primary sm:text-display" data-kinetic-hero transition:name={transitionName}>
       <slot />
     </h1>
   ) : (
-    <h1 class="mb-6 text-[36px] font-normal leading-[1.1] tracking-tight text-primary sm:text-[60px]" data-kinetic-hero>
+    <h1 class="mb-6 text-2xl font-normal text-primary sm:text-display" data-kinetic-hero>
       <slot />
     </h1>
   )}

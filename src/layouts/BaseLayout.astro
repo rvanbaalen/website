@@ -5,6 +5,7 @@ import { normalizePath } from "../lib/seo";
 import TopoPattern from "../components/TopoPattern.astro";
 import Sidebar from "../components/Sidebar.astro";
 import MobileNav from "../components/MobileNav.astro";
+import ThemeSwitch from "../components/ThemeSwitch.astro";
 
 interface Props {
   title: string;
@@ -86,30 +87,75 @@ const jsonLdBlocks = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     <link rel="alternate" type="application/rss+xml" title="Robin van Baalen" href="/rss.xml" />
     <script is:inline>
       (function() {
-        var pref = localStorage.getItem('theme-pref') || 'auto';
-        var theme = pref === 'auto'
-          ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-          : pref;
-        document.documentElement.setAttribute('data-theme', theme);
+        function applyPrefs() {
+          var pref = localStorage.getItem('theme-pref') || 'auto';
+          var theme = pref === 'auto'
+            ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+            : pref;
+          document.documentElement.setAttribute('data-theme', theme);
+          document.documentElement.classList.add('js');
+        }
+        applyPrefs();
+        document.addEventListener('astro:after-swap', applyPrefs);
       })();
-      document.addEventListener('astro:after-swap', function() {
-        var pref = localStorage.getItem('theme-pref') || 'auto';
-        var theme = pref === 'auto'
-          ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-          : pref;
-        document.documentElement.setAttribute('data-theme', theme);
-      });
     </script>
     <ClientRouter />
   </head>
-  <body class="overflow-x-hidden bg-base text-secondary font-serif text-lg leading-relaxed pb-16 md:pb-0 transition-colors duration-300">
+  <body class="overflow-x-hidden bg-canvas text-secondary font-serif text-base transition-colors duration-300 ease-move">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:rounded-md focus:border focus:border-edge focus:bg-surface focus:px-4 focus:py-2 focus:font-sans focus:text-xs focus:text-primary"
+    >
+      Skip to content
+    </a>
     <TopoPattern />
     <div class="relative z-10 mx-auto grid min-h-screen md:grid-cols-[260px_1fr]">
       <Sidebar currentPath={currentPath} />
-      <main class="min-w-0 max-w-[820px] px-6 py-12 md:px-16 md:py-12">
+      <main id="main" class="min-w-0 max-w-[820px] px-6 py-12 md:px-16 md:py-12">
         <slot />
       </main>
     </div>
+    <footer class="relative z-10 mx-6 mt-4 border-t border-edge-subtle pb-24 pt-6 font-sans md:hidden">
+      <div class="mx-auto mb-5 max-w-[220px]">
+        <ThemeSwitch />
+      </div>
+      <div class="mb-3 flex justify-center gap-5">
+        <a href="https://github.com/rvanbaalen" target="_blank" rel="noopener noreferrer" class="text-dim text-[18px] transition-colors duration-150 hover:text-accent-bright" aria-label="GitHub">
+          <i class="ph ph-github-logo" />
+        </a>
+        <a href="https://www.linkedin.com/in/robinvanbaalen/" target="_blank" rel="noopener noreferrer" class="text-dim text-[18px] transition-colors duration-150 hover:text-accent-bright" aria-label="LinkedIn">
+          <i class="ph ph-linkedin-logo" />
+        </a>
+      </div>
+      <p class="text-center text-2xs text-dim">&copy; 2026 Robin van Baalen</p>
+    </footer>
     <MobileNav currentPath={currentPath} />
+
+    <script>
+      // One delegated clipboard handler for every [data-copy-cmd] button on the site.
+      // Module scripts persist across view transitions, so no re-init is needed.
+      document.addEventListener("click", async (e) => {
+        const btn = (e.target as Element).closest?.("[data-copy-cmd]") as HTMLElement | null;
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const cmd = btn.getAttribute("data-copy-cmd");
+        if (!cmd) return;
+        const label = btn.querySelector(".copy-label");
+        const icon = btn.querySelector(".copy-icon");
+        const idle = btn.getAttribute("data-copy-idle") || "Copy";
+        try {
+          await navigator.clipboard.writeText(cmd);
+          if (label) label.textContent = "Copied!";
+          icon?.classList.replace("ph-copy", "ph-check");
+        } catch {
+          if (label) label.textContent = cmd;
+        }
+        setTimeout(() => {
+          if (label) label.textContent = idle;
+          icon?.classList.replace("ph-check", "ph-copy");
+        }, 2000);
+      });
+    </script>
   </body>
 </html>

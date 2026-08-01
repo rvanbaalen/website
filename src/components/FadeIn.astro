@@ -7,8 +7,12 @@ interface Props {
 const { delay = 0, class: className = "" } = Astro.props;
 ---
 
+{/* Hidden state is gated on the .js root class so content stays visible without JavaScript */}
 <div
-  class:list={["fade-in-target opacity-0 translate-y-3", className]}
+  class:list={[
+    "fade-in-target transition-[opacity,transform] duration-500 ease-enter [.js_&]:opacity-0 [.js_&]:translate-y-4",
+    className,
+  ]}
   style={delay ? `transition-delay: ${delay}ms` : undefined}
 >
   <slot />
@@ -16,29 +20,22 @@ const { delay = 0, class: className = "" } = Astro.props;
 
 <script>
   function initFadeIn() {
-    if (!document.querySelector("[data-fade-init]")) {
-      const style = document.createElement("style");
-      style.textContent = `.fade-in-visible { opacity: 1 !important; transform: translateY(0) !important; transition: opacity 0.5s ease, transform 0.5s ease; }`;
-      style.setAttribute("data-fade-init", "");
-      document.head.appendChild(style);
-    }
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add("fade-in-visible");
+            entry.target.classList.remove("[.js_&]:opacity-0", "[.js_&]:translate-y-4");
             observer.unobserve(entry.target);
           }
         });
       },
-      { threshold: 0.1 },
+      { threshold: 0.15 },
     );
 
-    document.querySelectorAll(".fade-in-target:not(.fade-in-visible)").forEach((el) => {
+    document.querySelectorAll(".fade-in-target:not([data-fade-observed])").forEach((el) => {
+      el.setAttribute("data-fade-observed", "");
       observer.observe(el);
     });
   }
-  initFadeIn();
   document.addEventListener("astro:page-load", initFadeIn);
 </script>
