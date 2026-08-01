@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
+import Prose from "../components/Prose.astro";
 
 interface Props {
   frontmatter: {
@@ -19,11 +20,11 @@ const { name, description, repo, version, tech, website } = Astro.props.frontmat
   <article>
     <header class="mb-10">
       <a
-        href="/projects"
+        href="/open-source"
         class="mb-6 inline-flex items-center gap-1.5 font-sans text-[14px] text-muted transition-colors duration-150 hover:text-accent"
       >
         <i class="ph ph-arrow-left text-[13px]" aria-hidden="true" />
-        All projects
+        All open source
       </a>
       <h1 class="mb-3 text-3xl font-normal leading-tight tracking-tight text-primary md:text-4xl">
         {name}
@@ -62,8 +63,8 @@ const { name, description, repo, version, tech, website } = Astro.props.frontmat
         </a>
       </div>
     </header>
-    <div class="prose prose-invert max-w-none prose-headings:font-serif prose-headings:font-normal prose-headings:tracking-tight prose-headings:text-primary prose-p:text-secondary prose-a:text-accent prose-a:no-underline hover:prose-a:underline prose-code:text-accent-bright prose-code:font-mono prose-code:text-[0.9em] prose-pre:bg-surface prose-pre:border prose-pre:border-edge prose-strong:text-primary prose-blockquote:border-accent-dim prose-blockquote:text-muted prose-li:text-secondary prose-th:text-primary prose-td:text-secondary">
+    <Prose>
       <slot />
-    </div>
+    </Prose>
   </article>
 </BaseLayout>

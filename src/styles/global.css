@@ -111,10 +111,25 @@
   50% { opacity: 0.4; transform: scale(1.5); }
 }
 
-/* Pulsating glow for availability dot */
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 6px var(--color-green-glow); }
-  50% { box-shadow: 0 0 14px var(--color-green-glow); }
+/* Typography plugin palette — themed via tokens so prose flips with [data-theme] */
+.prose {
+  --tw-prose-body: var(--color-secondary);
+  --tw-prose-headings: var(--color-primary);
+  --tw-prose-lead: var(--color-secondary);
+  --tw-prose-links: var(--color-accent);
+  --tw-prose-bold: var(--color-primary);
+  --tw-prose-counters: var(--color-muted);
+  --tw-prose-bullets: var(--color-muted);
+  --tw-prose-hr: var(--color-edge);
+  --tw-prose-quotes: var(--color-muted);
+  --tw-prose-quote-borders: var(--color-accent-dim);
+  --tw-prose-captions: var(--color-dim);
+  --tw-prose-kbd: var(--color-primary);
+  --tw-prose-code: var(--color-accent-bright);
+  --tw-prose-pre-code: var(--color-secondary);
+  --tw-prose-pre-bg: var(--color-surface);
+  --tw-prose-th-borders: var(--color-edge);
+  --tw-prose-td-borders: var(--color-edge-subtle);
 }
 
 /* Avatar grayscale-to-color on hover */

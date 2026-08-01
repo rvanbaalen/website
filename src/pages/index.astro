@@ -7,8 +7,7 @@ import FadeIn from "../components/FadeIn.astro";
 import KineticHero from "../components/KineticHero.astro";
 
 const allArticles = await getCollection("articles", ({ data }) => !data.draft);
-const realArticles = allArticles
-  .filter((a) => a.body && a.body.trim().length > 100)
+const articles = allArticles
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
   .slice(0, 4);
 
@@ -65,9 +64,9 @@ const featuredProjects = allProjects
         View all <i class="ph ph-arrow-right text-[13px]" aria-hidden="true" />
       </a>
     </div>
-    {realArticles.length > 0 ? (
+    {articles.length > 0 ? (
       <div>
-        {realArticles.map((article, i) => (
+        {articles.map((article, i) => (
           <FadeIn delay={i * 80}>
             <ArticleLedgerRow
               title={article.data.title}

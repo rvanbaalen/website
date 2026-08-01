@@ -1,4 +1,4 @@
-# Development Guide for rvanbaalen.github.io
+# Development Guide for robinvanbaalen.nl
 
 ## Commands
 - `npm run dev` - Start Astro dev server with hot reloading
@@ -21,7 +21,7 @@ npx wrangler deployments status             # current active deployment
 To watch for a new deployment after pushing, use Claude Code's **Monitor** tool with `npx wrangler deployments list`. Do not write polling loops manually — Monitor handles the streaming and notifies on new output.
 
 ## Tech Stack
-- **Framework:** Astro 5.x with Content Layer API
+- **Framework:** Astro 7.x with Content Layer API
 - **Styling:** Tailwind CSS v4 via `@tailwindcss/vite` plugin
 - **Content:** MDX articles + YAML project data via Content Collections
 - **Icons:** Phosphor Icons (`@phosphor-icons/web`, regular weight)
@@ -45,8 +45,10 @@ To watch for a new deployment after pushing, use Claude Code's **Monitor** tool 
 - `src/content/projects/` - YAML project data files
 - `src/content.config.ts` - Content collection schemas
 - `src/styles/global.css` - Tailwind imports + OKLCH theme tokens
-- `functions/api/` - Cloudflare Functions (contact form)
-- `public/` - Static assets (images, CNAME)
+- `public/` - Static assets (images, robots.txt, favicons)
+
+## Contact
+- Contact is social-links-only (GitHub/LinkedIn). There is no contact form and no API endpoint — do not add one without explicit request.
 
 ## Content
 - **Articles:** Create `.mdx` files in `src/content/articles/` with frontmatter: title, description, date, tags, draft

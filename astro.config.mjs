@@ -6,10 +6,15 @@ import posthog from "astro-posthog";
 
 import cloudflare from "@astrojs/cloudflare";
 
+if (!process.env.POSTHOG_TOKEN) {
+  console.warn("[build] POSTHOG_TOKEN not set — PostHog analytics disabled for this build");
+}
+
 export default defineConfig({
   site: "https://robinvanbaalen.nl",
 
   redirects: {
+    "/projects": "/open-source",
     "/curacao-election-2025": "https://curacao-election-2025.robinvanbaalen.nl",
     "/debt-tracker": "https://debt-tracker.robinvanbaalen.nl",
     "/flow-invoice": "https://flow-invoice.robinvanbaalen.nl",
@@ -23,8 +28,9 @@ export default defineConfig({
     ...(process.env.POSTHOG_TOKEN
       ? [
           posthog({
-            apiKey: process.env.POSTHOG_TOKEN,
-            apiHost: "https://eu.i.posthog.com",
+            posthogKey: process.env.POSTHOG_TOKEN,
+            api_host: "https://eu.i.posthog.com",
+            defaults: "2025-05-24",
           }),
         ]
       : []),
