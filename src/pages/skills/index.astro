@@ -16,18 +16,19 @@ const categories = [
   <KineticHero transitionName="nav-skills">
     Agent Skills
   </KineticHero>
-  <p class="-mt-10 mb-10 text-lg text-muted">
+  <p class="-mt-10 mb-10 text-base text-muted">
     Skills and agents that extend AI coding assistants with specialized capabilities — from micro-commits to Lottie animation generation.
   </p>
 
-  <div class="mb-10 rounded-lg border border-edge bg-[var(--color-base)] px-4 py-3">
-    <p class="mb-2 font-sans text-[13px] text-dim">Install the full marketplace in Claude Code:</p>
+  <div class="mb-10 rounded-md border border-edge bg-[var(--color-canvas)] px-4 py-3">
+    <p class="mb-2 font-sans text-xs text-dim">Install the full marketplace in Claude Code:</p>
     <div class="flex items-center gap-2 overflow-hidden">
       <code class="min-w-0 flex-1 overflow-x-auto font-mono text-sm text-secondary">/plugin marketplace add rvanbaalen/skills</code>
       <button
         type="button"
-        class="copy-marketplace flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-edge bg-surface px-3 py-1.5 font-sans text-[13px] text-muted transition-[background,border-color,color] duration-150 hover:border-accent-dim hover:text-accent-bright"
-        data-install-cmd="/plugin marketplace add rvanbaalen/skills"
+        class="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-edge bg-surface px-3 py-1.5 font-sans text-xs text-muted transition-[background,border-color,color] duration-150 hover:border-accent-dim hover:text-accent-bright"
+        data-copy-cmd="/plugin marketplace add rvanbaalen/skills"
+        data-copy-idle="Copy"
         aria-label="Copy marketplace install command"
       >
         <i class="ph ph-copy text-[14px] copy-icon" aria-hidden="true" />
@@ -43,7 +44,7 @@ const categories = [
     if (skills.length === 0) return null;
     return (
       <section class="mb-14">
-        <h2 class="mb-4 border-b border-edge-subtle pb-3 font-sans text-[14px] font-medium text-dim">{label}</h2>
+        <h2 class="mb-4 border-b border-edge-subtle pb-3 font-sans text-xs font-medium text-dim">{label}</h2>
         <div class="grid gap-4 md:grid-cols-2">
           {skills.map((skill) => (
             <SkillCard
@@ -61,32 +62,4 @@ const categories = [
     );
   })}
 
-  <script>
-    function initMarketplaceCopy() {
-      document.querySelectorAll('.copy-marketplace').forEach((btn) => {
-        if (btn.hasAttribute('data-copy-init')) return;
-        btn.setAttribute('data-copy-init', '');
-
-        btn.addEventListener('click', async () => {
-          const cmd = btn.getAttribute('data-install-cmd');
-          if (!cmd) return;
-          const label = btn.querySelector('.copy-label');
-          const icon = btn.querySelector('.copy-icon');
-          try {
-            await navigator.clipboard.writeText(cmd);
-            if (label) label.textContent = 'Copied!';
-            if (icon) { icon.classList.remove('ph-copy'); icon.classList.add('ph-check'); }
-          } catch {
-            if (label) label.textContent = cmd;
-          }
-          setTimeout(() => {
-            if (label) label.textContent = 'Copy';
-            if (icon) { icon.classList.remove('ph-check'); icon.classList.add('ph-copy'); }
-          }, 2000);
-        });
-      });
-    }
-    initMarketplaceCopy();
-    document.addEventListener('astro:after-swap', initMarketplaceCopy);
-  </script>
 </BaseLayout>

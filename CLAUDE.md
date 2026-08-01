@@ -31,7 +31,8 @@ To watch for a new deployment after pushing, use Claude Code's **Monitor** tool 
 
 ## Code Style
 - **IMPORTANT**: NEVER use standard CSS or inline CSS. Only use Tailwind utility classes
-- Exception: `src/styles/global.css` for `@theme` tokens and `prefers-reduced-motion` reset
+- Exception: `src/styles/global.css` for `@theme` tokens, the `prefers-reduced-motion` reset, the `:focus-visible` treatment, the `.prose` typography palette, and keyframes
+- Script hook policy: `astro:page-load` for anything that reads the new DOM after a navigation; `astro:after-swap` only for pre-paint mutations (theme re-apply). Prefer delegated `document`-level listeners over per-element init so handlers survive view-transition DOM swaps.
 - All colors use OKLCH color space (defined in `@theme` block in global.css)
 - Design system reference: `DESIGN.md`
 - Use kebab-case for filenames

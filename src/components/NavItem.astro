@@ -14,11 +14,12 @@ const applyTransition = transitionName && !active;
 <a
   href={href}
   class:list={[
-    "nav-item relative flex items-center gap-2.5 py-2 pl-5 font-sans text-[13px] font-[450] transition-[color,background] duration-150",
+    "nav-item relative flex items-center gap-2.5 py-2 pl-5 font-sans text-xs font-[450] transition-[color,background] duration-150",
     active ? "text-accent-bright active" : "text-muted hover:text-primary hover:bg-surface-hover rounded-sm",
   ]}
   data-nav-item
   data-active={active ? "true" : undefined}
+  aria-current={active ? "page" : undefined}
 >
   <i class={`ph ph-${icon} text-[17px] w-[18px] text-center`} aria-hidden="true" />
   {applyTransition ? (

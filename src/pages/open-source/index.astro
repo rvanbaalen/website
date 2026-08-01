@@ -26,7 +26,7 @@ const categories = [
     if (projects.length === 0) return null;
     return (
       <section class="mb-14">
-        <h2 class="mb-1 border-b border-edge-subtle pb-3 font-sans text-[14px] font-medium text-dim">{label}</h2>
+        <h2 class="mb-1 border-b border-edge-subtle pb-3 font-sans text-xs font-medium text-dim">{label}</h2>
         <div>
           {projects.map((project) => (
             <ProjectRow
@@ -44,11 +44,11 @@ const categories = [
   })}
 
   <section class="mb-14">
-    <h2 class="mb-1 border-b border-edge-subtle pb-3 font-sans text-[14px] font-medium text-dim">Archive</h2>
+    <h2 class="mb-1 border-b border-edge-subtle pb-3 font-sans text-xs font-medium text-dim">Archive</h2>
     <a href="/open-source/archive" class="group flex items-center justify-between rounded-md px-4 py-4 transition-[background,transform] duration-150 hover:bg-surface-hover">
       <div>
         <span class="text-lg font-medium text-primary transition-colors duration-150 group-hover:text-accent-bright">Browse the archive</span>
-        <p class="mt-0.5 font-sans text-base text-muted transition-colors duration-150 group-hover:text-secondary">The graveyard of ideas, side projects and experiments.</p>
+        <p class="mt-0.5 font-sans text-sm text-muted transition-colors duration-150 group-hover:text-secondary">The graveyard of ideas, side projects and experiments.</p>
       </div>
       <div class="flex items-center gap-4 shrink-0">
         <i class="ph ph-arrow-right text-dim opacity-0 -translate-x-1 transition-[opacity,transform] duration-150 group-hover:opacity-100 group-hover:translate-x-0" aria-hidden="true" />

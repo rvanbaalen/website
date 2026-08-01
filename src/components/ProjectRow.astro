@@ -22,17 +22,17 @@ const isExternal = href.startsWith("http");
     <span class="text-lg font-medium text-primary transition-colors duration-150 group-hover:text-accent-bright">
       {name}
     </span>
-    <p class="mt-0.5 font-sans text-base text-muted transition-colors duration-150 group-hover:text-secondary">
+    <p class="mt-0.5 font-sans text-sm text-muted transition-colors duration-150 group-hover:text-secondary">
       {description}
     </p>
     {hoverDetail && (
-      <p class="mt-1 max-h-0 overflow-hidden font-sans text-[13px] text-dim opacity-0 translate-y-1 transition-[max-height,opacity,transform] duration-150 group-hover:max-h-8 group-hover:opacity-100 group-hover:translate-y-0">
+      <p class="mt-1 max-h-0 overflow-hidden font-sans text-xs text-dim opacity-0 translate-y-1 transition-[max-height,opacity,transform] duration-150 group-hover:max-h-8 group-hover:opacity-100 group-hover:translate-y-0">
         {hoverDetail}
       </p>
     )}
   </div>
   <div class="flex items-center gap-4 shrink-0">
-    <span class="font-sans text-[13px] text-dim">
+    <span class="font-sans text-xs text-dim">
       {tech.join(" · ")}
     </span>
     <i class="ph ph-arrow-right text-dim opacity-0 -translate-x-1 transition-[opacity,transform] duration-150 group-hover:opacity-100 group-hover:translate-x-0" aria-hidden="true" />

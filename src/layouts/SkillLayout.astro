@@ -37,16 +37,16 @@ const jsonLd = [
     <header class="mb-10">
       <a
         href="/skills"
-        class="mb-6 inline-flex items-center gap-1.5 font-sans text-[14px] text-muted transition-colors duration-150 hover:text-accent"
+        class="mb-6 inline-flex items-center gap-1.5 font-sans text-xs text-muted transition-colors duration-150 hover:text-accent"
       >
         <i class="ph ph-arrow-left text-[13px]" aria-hidden="true" />
         All skills
       </a>
-      <h1 class="mb-3 text-3xl font-normal leading-tight tracking-tight text-primary md:text-4xl">
+      <h1 class="mb-3 text-xl font-normal text-primary">
         {name}
       </h1>
-      <p class="mb-4 text-lg text-muted">{description}</p>
-      <div class="flex flex-wrap items-center gap-3 font-sans text-[13px] text-dim">
+      <p class="mb-4 text-base text-muted">{description}</p>
+      <div class="flex flex-wrap items-center gap-3 font-sans text-xs text-dim">
         <span class="rounded bg-accent-subtle px-2.5 py-0.5 font-medium text-accent-bright">
           v{version}
         </span>
@@ -58,7 +58,7 @@ const jsonLd = [
           {author}
         </span>
         {invoke && (
-          <code class="rounded bg-surface px-2.5 py-0.5 font-mono text-[12px] text-muted">
+          <code class="rounded bg-surface px-2.5 py-0.5 font-mono text-2xs text-muted">
             {invoke}
           </code>
         )}
@@ -73,12 +73,13 @@ const jsonLd = [
         </a>
       </div>
 
-      <div class="mt-6 flex items-center gap-2 overflow-hidden rounded-lg border border-edge bg-[var(--color-base)] px-4 py-3">
+      <div class="mt-6 flex items-center gap-2 overflow-hidden rounded-md border border-edge bg-[var(--color-canvas)] px-4 py-3">
         <code class="min-w-0 flex-1 overflow-x-auto font-mono text-sm text-secondary">{installCmd}</code>
         <button
           type="button"
-          class="copy-install-detail flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-edge bg-surface px-3 py-1.5 font-sans text-[13px] text-muted transition-[background,border-color,color] duration-150 hover:border-accent-dim hover:text-accent-bright"
-          data-install-cmd={installCmd}
+          class="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-edge bg-surface px-3 py-1.5 font-sans text-xs text-muted transition-[background,border-color,color] duration-150 hover:border-accent-dim hover:text-accent-bright"
+          data-copy-cmd={installCmd}
+          data-copy-idle="Copy"
           aria-label="Copy install command"
         >
           <i class="ph ph-copy text-[14px] copy-icon" aria-hidden="true" />
@@ -90,33 +91,4 @@ const jsonLd = [
       <slot />
     </Prose>
   </article>
-
-  <script>
-    function initDetailCopy() {
-      document.querySelectorAll('.copy-install-detail').forEach((btn) => {
-        if (btn.hasAttribute('data-copy-init')) return;
-        btn.setAttribute('data-copy-init', '');
-
-        btn.addEventListener('click', async () => {
-          const cmd = btn.getAttribute('data-install-cmd');
-          if (!cmd) return;
-          const label = btn.querySelector('.copy-label');
-          const icon = btn.querySelector('.copy-icon');
-          try {
-            await navigator.clipboard.writeText(cmd);
-            if (label) label.textContent = 'Copied!';
-            if (icon) { icon.classList.remove('ph-copy'); icon.classList.add('ph-check'); }
-          } catch {
-            if (label) label.textContent = cmd;
-          }
-          setTimeout(() => {
-            if (label) label.textContent = 'Copy';
-            if (icon) { icon.classList.remove('ph-check'); icon.classList.add('ph-copy'); }
-          }, 2000);
-        });
-      });
-    }
-    initDetailCopy();
-    document.addEventListener('astro:after-swap', initDetailCopy);
-  </script>
 </BaseLayout>

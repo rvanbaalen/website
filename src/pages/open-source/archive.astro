@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ProjectRow from "../../components/ProjectRow.astro";
+import KineticHero from "../../components/KineticHero.astro";
 
 const allProjects = await getCollection("projects");
 const archived = allProjects.filter((p) => p.data.archived);
@@ -15,11 +16,13 @@ const categories = [
 ---
 
 <BaseLayout title="Archive — Robin van Baalen" description="The graveyard of ideas, side projects and experiments.">
-  <a href="/open-source" class="mb-6 inline-flex items-center gap-1.5 font-sans text-sm text-muted transition-[color,gap] duration-150 hover:text-accent-bright hover:gap-2">
+  <a href="/open-source" class="mb-6 inline-flex items-center gap-1.5 font-sans text-xs text-muted transition-[color,gap] duration-150 hover:text-accent-bright hover:gap-2">
     <i class="ph ph-arrow-left text-[14px]" aria-hidden="true"></i> Open Source
   </a>
-  <h1 class="mb-2 text-3xl font-normal tracking-tight text-primary">Archive</h1>
-  <p class="mb-10 text-lg text-muted">The graveyard of ideas, side projects and experiments.</p>
+  <KineticHero>
+    Archive
+  </KineticHero>
+  <p class="-mt-10 mb-10 text-base text-muted">The graveyard of ideas, side projects and experiments.</p>
 
   {categories.map(({ key, label }) => {
     const projects = archived
@@ -28,7 +31,7 @@ const categories = [
     if (projects.length === 0) return null;
     return (
       <section class="mb-14">
-        <h2 class="mb-1 border-b border-edge-subtle pb-3 font-sans text-[14px] font-medium text-dim">{label}</h2>
+        <h2 class="mb-1 border-b border-edge-subtle pb-3 font-sans text-xs font-medium text-dim">{label}</h2>
         <div>
           {projects.map((project) => (
             <ProjectRow

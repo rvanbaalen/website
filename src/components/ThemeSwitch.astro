@@ -1,0 +1,118 @@
+---
+const options = [
+  { value: "light", icon: "sun", label: "Light" },
+  { value: "auto", icon: "monitor", label: "System" },
+  { value: "dark", icon: "moon", label: "Dark" },
+] as const;
+---
+
+<div
+  class="relative flex h-8 w-full rounded-lg border border-edge bg-[var(--color-canvas)] p-0.5"
+  data-theme-switch
+  role="radiogroup"
+  aria-label="Theme switcher"
+>
+  <div
+    class="absolute top-0.5 left-0.5 h-[calc(100%-4px)] w-[calc(33.333%-2px)] rounded-md bg-surface-hover transition-transform duration-300 ease-enter"
+    data-theme-slider
+    aria-hidden="true"
+  >
+  </div>
+  {
+    options.map((opt) => (
+      <button
+        class="group relative z-10 flex flex-1 cursor-pointer items-center justify-center rounded-md text-dim transition-colors duration-150 hover:text-secondary"
+        data-theme-opt={opt.value}
+        role="radio"
+        aria-checked="false"
+        aria-label={`${opt.label} mode`}
+      >
+        <i class={`ph ph-${opt.icon} text-[15px]`} aria-hidden="true" />
+        <span class="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 rounded-md bg-surface border border-edge px-2 py-0.5 font-sans text-2xs text-muted opacity-0 transition-opacity duration-150 group-hover:opacity-100 whitespace-nowrap">
+          {opt.label}
+        </span>
+      </button>
+    ))
+  }
+</div>
+
+<script>
+  const ORDER = ["light", "auto", "dark"] as const;
+  const POSITIONS: Record<string, string> = {
+    light: "translateX(0%)",
+    auto: "translateX(100%)",
+    dark: "translateX(200%)",
+  };
+
+  function getPref(): string {
+    return localStorage.getItem("theme-pref") || "auto";
+  }
+
+  function getSystemTheme(): string {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+
+  function applyTheme(pref: string) {
+    document.documentElement.setAttribute("data-theme", pref === "auto" ? getSystemTheme() : pref);
+  }
+
+  function updateAllSwitches() {
+    const pref = getPref();
+    document.querySelectorAll("[data-theme-switch]").forEach((sw) => {
+      const slider = sw.querySelector<HTMLElement>("[data-theme-slider]");
+      if (slider) slider.style.transform = POSITIONS[pref] || POSITIONS.auto;
+      sw.querySelectorAll<HTMLElement>("[data-theme-opt]").forEach((opt) => {
+        const checked = opt.getAttribute("data-theme-opt") === pref;
+        opt.classList.toggle("text-primary", checked);
+        opt.classList.toggle("text-dim", !checked);
+        opt.setAttribute("aria-checked", String(checked));
+        opt.tabIndex = checked ? 0 : -1;
+      });
+    });
+  }
+
+  function setPref(pref: string) {
+    localStorage.setItem("theme-pref", pref);
+    if (pref === "auto") {
+      localStorage.removeItem("theme");
+    } else {
+      localStorage.setItem("theme", pref);
+    }
+    applyTheme(pref);
+    updateAllSwitches();
+  }
+
+  function initThemeSwitches() {
+    document.querySelectorAll("[data-theme-switch]:not([data-theme-init])").forEach((sw) => {
+      sw.setAttribute("data-theme-init", "");
+      sw.addEventListener("click", (e) => {
+        const opt = (e.target as Element).closest("[data-theme-opt]");
+        if (opt) setPref(opt.getAttribute("data-theme-opt") || "auto");
+      });
+      sw.addEventListener("keydown", (e) => {
+        const key = (e as KeyboardEvent).key;
+        const idx = ORDER.indexOf(getPref() as (typeof ORDER)[number]);
+        let next: string | null = null;
+        if (key === "ArrowRight" || key === "ArrowDown") next = ORDER[(idx + 1) % ORDER.length];
+        else if (key === "ArrowLeft" || key === "ArrowUp")
+          next = ORDER[(idx + ORDER.length - 1) % ORDER.length];
+        else if (key === "Home") next = ORDER[0];
+        else if (key === "End") next = ORDER[ORDER.length - 1];
+        if (next) {
+          e.preventDefault();
+          setPref(next);
+          sw.querySelector<HTMLElement>(`[data-theme-opt="${next}"]`)?.focus();
+        }
+      });
+    });
+    updateAllSwitches();
+    applyTheme(getPref());
+  }
+
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+    if (getPref() === "auto") applyTheme("auto");
+  });
+
+  initThemeSwitches();
+  document.addEventListener("astro:page-load", initThemeSwitches);
+</script>

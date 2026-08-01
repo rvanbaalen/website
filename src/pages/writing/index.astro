@@ -18,7 +18,7 @@ const articles = allArticles.sort(
     </KineticHero>
     {articles.length > 0 ? (
       <>
-        <p class="mb-10 text-lg text-muted">I only write when something's worth reading.</p>
+        <p class="mb-10 text-base text-muted">I only write when something's worth reading.</p>
         <div>
           {articles.map((article, i) => (
             <FadeIn delay={i * 80}>
@@ -34,10 +34,10 @@ const articles = allArticles.sort(
       </>
     ) : (
       <div class="mt-16 mb-16">
-        <p class="text-lg text-muted">
+        <p class="text-base text-muted">
           Nothing here yet. I only publish things I'd actually want to read.
         </p>
-        <p class="mt-2 font-sans text-[14px] text-dim">
+        <p class="mt-2 font-sans text-xs text-dim">
           The bar is high. Check back later.
         </p>
       </div>

@@ -23,6 +23,7 @@
 ### Type Scale (base 20px, ~1.25 major third)
 | Token     | Size   | Usage |
 |-----------|--------|-------|
+| `2xs`     | 12px   | Chips, tooltips, mobile nav labels, legal |
 | `xs`      | 14px   | Tags, metadata, sidebar copy |
 | `sm`      | 16px   | Card descriptions, form inputs, secondary text |
 | `base`    | 20px   | Body text, article prose |
@@ -47,7 +48,7 @@ The accent barely announces itself. Hierarchy comes from brightness and weight, 
 ### Dark Theme (default)
 | Token | Value | Usage |
 |-------|-------|-------|
-| `base` | `oklch(10% 0.01 260)` | Page background |
+| `canvas` | `oklch(10% 0.01 260)` | Page background (named `canvas`, not `base`: a `--color-base` token would make Tailwind resolve `text-base` as a color instead of the 20px type-scale size) |
 | `surface` | `oklch(14% 0.012 260)` | Cards, sidebar, raised elements |
 | `surface-hover` | `oklch(17% 0.015 260)` | Hover state for surfaces |
 | `edge` | `oklch(20% 0.015 260)` | Primary borders |
@@ -65,15 +66,15 @@ The accent barely announces itself. Hierarchy comes from brightness and weight, 
 ### Light Theme
 | Token | Value | Usage |
 |-------|-------|-------|
-| `base` | `oklch(97% 0.005 80)` | Page background |
+| `canvas` | `oklch(97% 0.005 80)` | Page background |
 | `surface` | `oklch(100% 0 0)` | Cards, sidebar |
 | `surface-hover` | `oklch(95% 0.005 80)` | Hover state |
 | `edge` | `oklch(85% 0.01 80)` | Primary borders |
 | `edge-subtle` | `oklch(90% 0.005 80)` | Faint separators |
 | `primary` | `oklch(15% 0.01 260)` | Headings |
-| `secondary` | `oklch(35% 0.01 260)` | Body text |
-| `muted` | `oklch(55% 0.008 260)` | Subdued text |
-| `dim` | `oklch(70% 0.005 260)` | Very quiet text |
+| `secondary` | `oklch(32% 0.015 260)` | Body text (darkened 3% vs original spec for contrast) |
+| `muted` | `oklch(50% 0.01 260)` | Subdued text (darkened 5% for contrast) |
+| `dim` | `oklch(65% 0.008 260)` | Very quiet text (darkened 5% for contrast) |
 | `accent` | `oklch(42% 0.04 260)` | Links, active states |
 | `accent-bright` | `oklch(35% 0.05 260)` | Hover (darker on light) |
 | `accent-dim` | `oklch(52% 0.03 260)` | Quieter accent |
@@ -83,8 +84,8 @@ The accent barely announces itself. Hierarchy comes from brightness and weight, 
 ### Semantic Colors
 | Token | Dark | Light | Usage |
 |-------|------|-------|-------|
-| `success` | `oklch(62% 0.14 150)` | `oklch(50% 0.14 150)` | Availability dot |
-| `success-glow` | `oklch(62% 0.14 150 / 0.3)` | `oklch(50% 0.14 150 / 0.2)` | Dot glow |
+| `success` | `oklch(62% 0.14 150)` | `oklch(50% 0.14 150)` | Reserved (availability dot removed 2026-07-31) |
+| `success-glow` | `oklch(62% 0.14 150 / 0.3)` | `oklch(50% 0.14 150 / 0.2)` | Reserved |
 | `warning` | `oklch(72% 0.14 85)` | `oklch(60% 0.14 85)` | Warnings |
 | `error` | `oklch(62% 0.2 25)` | `oklch(52% 0.2 25)` | Form validation |
 | `info` | `oklch(62% 0.04 260)` | `oklch(42% 0.04 260)` | Informational |
@@ -135,18 +136,14 @@ Every hover, focus, and state change must have a transition. Nothing snaps.
 - **Buttons:** translateY(-1px) + faint glow on hover, translateY(0) on active
 
 ### Animations
-All animations respect `prefers-reduced-motion: reduce`.
+All animations respect `prefers-reduced-motion: reduce` via a two-layer approach: a global reset zeroes animation/transition durations and delays (transforms are deliberately left alone — the theme slider and nav dot position via transform), and components with entrance motion (kinetic hero) also check `matchMedia` in JS before animating.
 - **Kinetic hero:** Words reveal one by one (0.1s stagger, 0.5s duration per word, enter easing). Subtitle fades in after words complete.
 - **Nav dot:** Pulsating scale+opacity, 2s infinite
-- **Availability dot:** Pulsating glow, 2.5s infinite
-- **Scroll fade-in:** Sections fade up (16px translateY, long duration) via IntersectionObserver at 15% threshold
+- **Scroll fade-in:** Sections fade up (16px translateY, long duration) via IntersectionObserver at 15% threshold. Hidden state is gated on a `.js` root class so content renders visible without JavaScript.
 
 ### View Transitions
-All view transitions use Astro's built-in View Transitions API. Progressive enhancement — browsers without support fall back to instant page swap.
-- **Page crossfade:** `var(--dur-short)` (150ms), ease-out
-- **Shared elements (sidebar, section labels):** `var(--dur-medium)` (300ms), enter easing
-- **Hover reveal (project rows):** `var(--dur-short)` (150ms), ease-out, opacity + translateY(4px)
-- **Reduced motion:** Instant swap, no animation (handled by global prefers-reduced-motion reset)
+Astro's `<ClientRouter />` with default browser crossfade — no custom `::view-transition-*` timing rules. Shared elements carry `transition:name` (sidebar with `transition:animate="none"`, nav labels, hero headings) so they persist smoothly across navigations. The project-row hover reveal is a plain CSS max-height/opacity transition (150ms), not a view transition.
+- **Reduced motion:** Instant swap, no animation
 
 No new duration tokens. No new easing curves. Consistency is craft.
 
@@ -176,3 +173,11 @@ Subtle radial gradient glow behind the intro section:
 | 2026-03-28 | Add light/dark mode toggle | Industry standard. Theme toggle in sidebar footer. |
 | 2026-03-28 | Add section gradient atmosphere | Faint radial glow behind intro/contact. Just enough depth to raise an eyebrow. |
 | 2026-03-28 | All hovers must transition | No snapping. Every interactive state change uses easing and duration tokens. |
+| 2026-07-31 | Type scale implemented as Tailwind `--text-*` tokens | The scale existed only on paper; components used arbitrary pixel values. Now tokens generate the utilities. |
+| 2026-07-31 | Added `2xs: 12px` | Chips, tooltips, mobile nav labels, and legal text legitimately need sub-14px; 10–13px arbitrary values consolidated. |
+| 2026-07-31 | Renamed color token `base` → `canvas` | `--color-base` made Tailwind resolve `text-base` as a color, silently breaking the 20px body size. |
+| 2026-07-31 | Light text tokens darkened 3–5% vs original spec | Measured contrast on the 97% background; spec values were borderline for meta text. |
+| 2026-07-31 | Default transition = 150ms enter easing via `--default-transition-*` | Tailwind v4 has no `--duration-*` theme namespace; setting the defaults enforces the motion spec without per-element classes. |
+| 2026-07-31 | View Transitions section rewritten to match shipped reality | Custom crossfade timing was never implemented; shared-element names + default crossfade achieve the intent. |
+| 2026-07-31 | 404 page keeps a plain static heading | Error pages should render instantly; kinetic ceremony is for destination pages. Documented exception. |
+| 2026-07-31 | Availability dot removed | Component was dead code; `success` tokens kept as reserved. |
