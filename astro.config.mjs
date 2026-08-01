@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { defineConfig } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
@@ -28,6 +29,44 @@ function articleLastmodMap() {
   return map;
 }
 const articleDates = articleLastmodMap();
+
+// Last commit date per tracked file, from a single git pass. Used for sitemap
+// <lastmod> so crawlers get a real modification date rather than the build time.
+// Returns an empty map when git is unavailable or the clone is shallow — an absent
+// lastmod is better than a wrong one, which Google learns to distrust.
+function gitLastModifiedMap() {
+  const map = new Map();
+  try {
+    const log = execFileSync("git", ["log", "--format=%cI", "--name-only", "--no-merges"], {
+      encoding: "utf-8",
+      maxBuffer: 32 * 1024 * 1024,
+    });
+    let date = null;
+    for (const line of log.split("\n")) {
+      if (line === "") continue;
+      if (/^\d{4}-\d{2}-\d{2}T/.test(line)) date = line;
+      else if (date && !map.has(line)) map.set(line, date);
+    }
+  } catch {
+    console.warn("[build] git log unavailable — sitemap will omit lastmod");
+  }
+  return map;
+}
+const gitDates = gitLastModifiedMap();
+
+// Map a built URL back to the source file it came from, so lastmod tracks content.
+function sourceFileForPath(path) {
+  const seg = path.replace(/^\/|\/$/g, "");
+  if (seg === "") return "src/pages/index.astro";
+  for (const candidate of [
+    `src/pages/${seg}.astro`,
+    `src/pages/${seg}.mdx`,
+    `src/pages/${seg}/index.astro`,
+  ]) {
+    if (gitDates.has(candidate)) return candidate;
+  }
+  return null;
+}
 
 // Legacy URLs that still earn search impressions. Historically projects lived at
 // /<slug> and the election site at /curacao-election-2025/<lang>; both moved without
@@ -108,9 +147,19 @@ export default defineConfig({
     trailingSlashRedirects(),
     sitemap({
       serialize(item) {
-        const slug = item.url.match(/\/writing\/([^/]+?)\/?$/)?.[1];
-        const lastmod = slug && articleDates.get(slug);
-        if (lastmod) item.lastmod = lastmod.toISOString();
+        const path = new URL(item.url).pathname;
+
+        // Articles carry an explicit date in frontmatter; everything else falls
+        // back to the last commit that touched its source file
+        const slug = path.match(/\/writing\/([^/]+?)\/?$/)?.[1];
+        const articleDate = slug && articleDates.get(slug);
+        if (articleDate) {
+          item.lastmod = articleDate.toISOString();
+        } else {
+          const source = sourceFileForPath(path);
+          const committed = source && gitDates.get(source);
+          if (committed) item.lastmod = committed;
+        }
         return item;
       },
     }),
@@ -129,8 +178,16 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
 
+  // Every page is prerendered, so images can be optimized with sharp at build time
+  // and no runtime image service is needed. The adapter's default workerd service
+  // requires a Cloudflare Images binding we don't have, and silently passes images
+  // through unresized when it is missing.
+  image: {
+    service: { entrypoint: "astro/assets/services/sharp" },
+  },
+
   adapter: cloudflare({
-    imageService: "compile",
+    imageService: "custom",
     // astro-og-canvas (CanvasKit WASM) cannot run inside the workerd prerenderer
     prerenderEnvironment: "node",
   }),

@@ -2,7 +2,7 @@
 import { Image } from "astro:assets";
 import NavItem from "./NavItem.astro";
 import ThemeSwitch from "./ThemeSwitch.astro";
-import avatarImg from "../../public/images/avatar.png";
+import avatarImg from "../assets/avatar.png";
 
 interface Props {
   currentPath: string;
@@ -34,6 +34,7 @@ function isActive(href: string, current: string): boolean {
         class="mb-3.5 h-40 w-40 rounded-full border-2 border-edge"
         width={160}
         height={160}
+        loading="eager"
       />
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" class="absolute left-1 bottom-3 h-14 w-14 rotate-[50deg] text-accent-dim" aria-hidden="true">
         <polyline points="152 80 104 32 56 80" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
