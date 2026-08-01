@@ -35,10 +35,6 @@ export default defineConfig({
   },
 
   adapter: cloudflare({
-    routes: {
-      extend: {
-        include: [{ pattern: "/api/*" }],
-      },
-    },
+    imageService: "compile",
   })
 });
