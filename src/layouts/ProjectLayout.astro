@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
 import Prose from "../components/Prose.astro";
+import { softwareSourceCodeSchema, breadcrumbSchema, normalizePath } from "../lib/seo";
 
 interface Props {
   frontmatter: {
@@ -14,9 +15,20 @@ interface Props {
 }
 
 const { name, description, repo, version, tech, website } = Astro.props.frontmatter;
+
+const pagePath = normalizePath(Astro.url.pathname);
+const pageUrl = new URL(pagePath, Astro.site).href;
+const jsonLd = [
+  softwareSourceCodeSchema({ name, description, repo, tech, version, url: pageUrl }),
+  breadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "Open Source", path: "/open-source" },
+    { name, path: pagePath },
+  ]),
+];
 ---
 
-<BaseLayout title={`${name} — Robin van Baalen`} description={description}>
+<BaseLayout title={`${name} — Robin van Baalen`} description={description} jsonLd={jsonLd}>
   <article>
     <header class="mb-10">
       <a

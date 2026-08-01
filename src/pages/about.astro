@@ -1,9 +1,10 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import KineticHero from "../components/KineticHero.astro";
+import { personSchema } from "../lib/seo";
 ---
 
-<BaseLayout title="About — Robin van Baalen" description="Almost thirty years building software. AI, bleeding edge tools, and an obsession with the details that shape how software feels.">
+<BaseLayout title="About — Robin van Baalen" description="Almost thirty years building software. AI, bleeding edge tools, and an obsession with the details that shape how software feels." jsonLd={personSchema()}>
   <KineticHero>
     I build because I love it.
   </KineticHero>

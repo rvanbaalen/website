@@ -5,6 +5,7 @@ import ArticleLedgerRow from "../components/ArticleLedgerRow.astro";
 import ProjectRow from "../components/ProjectRow.astro";
 import FadeIn from "../components/FadeIn.astro";
 import KineticHero from "../components/KineticHero.astro";
+import { personSchema, websiteSchema } from "../lib/seo";
 
 const allArticles = await getCollection("articles", ({ data }) => !data.draft);
 const articles = allArticles
@@ -14,10 +15,14 @@ const articles = allArticles
 const allProjects = await getCollection("projects");
 const featuredProjects = allProjects
   .filter((p) => p.data.featured && !p.data.archived)
-  .sort((a, b) => a.data.order - b.data.order);
+  .sort((a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name));
 ---
 
-<BaseLayout title="Robin van Baalen">
+<BaseLayout
+  title="Robin van Baalen — Founder & Software Engineer"
+  description="Founder and software engineer. I build products, ship open source, and advise teams on software architecture and AI-assisted development."
+  jsonLd={[personSchema(), websiteSchema()]}
+>
   <KineticHero>
     Software should be simple. I build tools, advise teams, and ship code.
   </KineticHero>
