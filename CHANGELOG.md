@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.16.0](https://github.com/rvanbaalen/website/compare/robinvanbaalen-website-v1.15.1...robinvanbaalen-website-v1.16.0) (2026-08-06)
+
+
+### Features
+
+* add ofxreader project (CLI + MCP server) ([e0f22a2](https://github.com/rvanbaalen/website/commit/e0f22a22cb6ed2474746004a3bfa2b3755287747))
+* **design:** implement DESIGN.md for real — type scale, motion, a11y, mobile footer ([61e0631](https://github.com/rvanbaalen/website/commit/61e063136a196460706302cf41eeb3a793584a6c))
+* **seo:** structured data, social cards, robots, favicons, canonical URL policy ([7b00c14](https://github.com/rvanbaalen/website/commit/7b00c1488eb198d44858e3193fea26272ceda450))
+* **skills:** add 8 missing skill pages from marketplace ([12dcbf1](https://github.com/rvanbaalen/website/commit/12dcbf11ccc67e8ccdc17e0ce443fb3416de688a))
+
+
+### Bug Fixes
+
+* remove placeholder article, dead code, and duplicate listing page ([6e253df](https://github.com/rvanbaalen/website/commit/6e253dfeb994c202eba0d0be0a725a5702ee722e))
+* **seo:** optimize images, add sitemap lastmod and security headers ([e6481c1](https://github.com/rvanbaalen/website/commit/e6481c12cbfcc8b2ade7319bc5d0ca02a6b9c633))
+* **seo:** restore redirects for legacy URLs earning 85% of impressions ([2578365](https://github.com/rvanbaalen/website/commit/257836509e0445e6b1fe59d71a8f92419ef671e5))
+* **skills:** refresh 13 skill pages to current marketplace versions ([a167fe5](https://github.com/rvanbaalen/website/commit/a167fe5ee392a00b72d506f992355586e7d20376))
+* **sync-skills:** stop generating broken invoke command format ([d4717cb](https://github.com/rvanbaalen/website/commit/d4717cbda06d28d74f65a19d25b449779c3c3024))
+
 ## [1.15.1](https://github.com/rvanbaalen/website/compare/robinvanbaalen-website-v1.15.0...robinvanbaalen-website-v1.15.1) (2026-04-02)
 
 
