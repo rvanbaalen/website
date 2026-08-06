@@ -1,0 +1,8 @@
+name: Make Issue Comment
+description: Post and maintain structured investigation comments on GitHub PRs
+version: "0.2.0"
+author: Robin van Baalen
+invoke: "/make-issue-comment:make-issue-comment"
+trigger: auto
+category: skill
+order: 14

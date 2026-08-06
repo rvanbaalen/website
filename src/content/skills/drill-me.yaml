@@ -1,0 +1,8 @@
+name: Drill Me
+description: Interview-style stress test that walks the design tree before code is written
+version: "0.1.0"
+author: Robin van Baalen
+invoke: "/drill-me:drill-me"
+trigger: auto
+category: skill
+order: 17

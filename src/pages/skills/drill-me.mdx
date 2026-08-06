@@ -1,0 +1,42 @@
+---
+layout: ../../layouts/SkillLayout.astro
+name: Drill Me
+description: Interview-style stress test that walks the design tree before code is written
+version: "0.1.0"
+author: Robin van Baalen
+invoke: "/drill-me:drill-me"
+install: "drill-me@rvanbaalen"
+repo: "rvanbaalen/skills"
+category: "skill"
+---
+
+## When to use
+
+Use when you have a plan, spec, ticket, RFC, design doc, or rough idea that should be stress-tested before anyone writes code. Drill Me is the opposite of yes-and brainstorming: the plan already exists, and the job is to find the unresolved forks, surface them in a sensible order, and close them. Skip it when there is no plan yet (brainstorm instead), when a single clarifying question would do, or when the change is a one-line edit.
+
+## How it works
+
+1. Scans the plan for major branches — scope, users, constraints, data model, interface contracts, integration points, edge cases, non-functionals, rollout, testing, future-proofing
+2. Explores the codebase first, answering anything the repo, tests, `git log`, or config already settles
+3. Asks one opinionated question per turn, each with a recommended default, a one-sentence rationale, and a credible alternative
+4. Walks the design tree depth-first, resolving a parent decision before drilling into its children
+5. Stops when every material decision is closed — or when you say "enough, build it" — and says so explicitly
+6. Outputs a resolved plan: goal, scope in/out, decisions with rationale, deferred questions, and a single concrete next step
+
+## Capabilities
+
+**Codebase before user** — Greps for the auth pattern, the test framework, existing utilities, and nearby coding style rather than spending your time on questions the repo answers. It states what it found so a wrong inference can be corrected.
+
+**Calibrated intensity** — 2-5 questions for a one-file change, 6-15 for a multi-file feature, 15-30+ for an architectural initiative. Trivial plans get an honest offer to skip drilling entirely.
+
+**Binary questions with defaults** — "Postgres or SQLite?" beats "what database?". Every question commits to an answer so you can confirm with "yes" instead of writing an essay. No hedging, no multi-question barrages, no restating your idea back at you.
+
+**Handoff** — Offers to save the resolved plan to `docs/plans/<slug>.md`, and suggests handing implementation-bound work to `superpowers:writing-plans`.
+
+## Invoke
+
+```
+/drill-me:drill-me
+```
+
+It also fires automatically on natural phrases like "drill me", "interview me", "interrogate this plan", "stress test this", "poke holes in this", "what am I missing", "make sure we're aligned", or "before I build this..." with an idea attached.

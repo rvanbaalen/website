@@ -1,0 +1,8 @@
+name: Disk Cleanup
+description: Reclaim macOS disk space through a safety-tiered identify, propose, execute flow
+version: "0.1.0"
+author: Robin van Baalen
+invoke: "/disk-cleanup:disk-cleanup"
+trigger: manual
+category: skill
+order: 21

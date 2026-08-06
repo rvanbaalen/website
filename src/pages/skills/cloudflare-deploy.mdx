@@ -1,0 +1,47 @@
+---
+layout: ../../layouts/SkillLayout.astro
+name: Cloudflare Deploy
+description: Set up and deploy Astro sites to Cloudflare Workers with custom domains
+version: "0.1.0"
+author: Robin van Baalen
+invoke: "/cloudflare-deploy:cloudflare-deploy"
+install: "cloudflare-deploy@rvanbaalen"
+repo: "rvanbaalen/skills"
+category: "skill"
+---
+
+## When to use
+
+Use when you want to put an Astro site on Cloudflare Workers, point a custom domain at it, or work out why a deployment or its DNS is misbehaving. It triggers on its own when a project contains `@astrojs/cloudflare`, `wrangler.toml`, or a `.workers.dev` URL.
+
+The skill enforces one rule above all: never run `wrangler deploy` locally. Deployments happen by pushing to git and letting the Cloudflare-to-GitHub pipeline build. Local deploys create version drift and skip CI checks. Only read-only wrangler commands — `whoami`, `deployments list`, `tail`, `dev` — belong on your machine.
+
+Prerequisites: a Cloudflare account with the Workers project connected to the GitHub repo, wrangler available via `npx`, and access to the domain's DNS zone if you want a custom domain.
+
+## How it works
+
+1. Installs `@astrojs/cloudflare`, plus an explicit `vite@^7` on Astro 6 to avoid the `require_dist is not a function` build error
+2. Configures `astro.config.mjs` so the adapter activates only for builds, keeping `astro dev` free of worker emulation
+3. Creates `wrangler.toml` with the project name, compatibility date, `nodejs_compat` flag, and the `./dist` assets directory
+4. Checks `.gitignore` covers `.wrangler/`, `dist/`, `.astro/`, and env files
+5. Adds the `dev`, `build`, and `preview` scripts, where `preview` builds and then runs the worker locally
+6. Verifies the build locally and maps common failures to their fixes
+7. Commits and pushes — the connected Cloudflare pipeline deploys from `main`
+
+## Capabilities
+
+**Custom domains** — Adds `routes` entries with `custom_domain = true` for one or many hostnames. Cloudflare auto-creates the DNS record when it manages the zone.
+
+**Deployment verification** — Confirms the push landed via `wrangler deployments list`, then checks the `*.workers.dev` URL to separate deployment problems from DNS problems.
+
+**DNS debugging** — Walks `dig`, record inspection, manual proxied CNAME creation, propagation waits, and SSL mode checks in order, with a symptom-to-fix table covering 522s, 1101 worker exceptions, cipher mismatches, and stale content.
+
+**Log tailing** — Streams production errors with `wrangler tail` for 500s, missing routes, and runtime exceptions.
+
+**Config and secrets** — Sets secrets through `wrangler secret put`, non-secret config through `[vars]`, and disables the `workers.dev` URL once the custom domain is verified.
+
+## Invoke
+
+```
+/cloudflare-deploy:cloudflare-deploy
+```

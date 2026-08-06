@@ -1,0 +1,8 @@
+name: Cloudflare Deploy
+description: Set up and deploy Astro sites to Cloudflare Workers with custom domains
+version: "0.1.0"
+author: Robin van Baalen
+invoke: "/cloudflare-deploy:cloudflare-deploy"
+trigger: auto
+category: skill
+order: 16

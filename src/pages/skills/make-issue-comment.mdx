@@ -1,0 +1,46 @@
+---
+layout: ../../layouts/SkillLayout.astro
+name: Make Issue Comment
+description: Post and maintain structured investigation comments on GitHub PRs
+version: "0.2.0"
+author: Robin van Baalen
+invoke: "/make-issue-comment:make-issue-comment"
+install: "make-issue-comment@rvanbaalen"
+repo: "rvanbaalen/skills"
+category: "skill"
+---
+
+## When to use
+
+Use when a debugging session on a PR branch has produced a concrete root cause and a fix plan, and that context would otherwise evaporate when the conversation ends. The skill writes it down where the next engineer will look: a comment on the PR itself, with the symptom, the investigation, the smoking gun, the fix, verification steps, and a live progress checklist. It fires proactively once an investigation lands, but only ever *proposes* — nothing gets posted without approval.
+
+This is not `/make-issue`, which opens a new GitHub issue. This skill only creates and updates comments on existing PRs.
+
+## How it works
+
+1. Proposes posting a comment if it was invoked proactively; skips straight ahead on explicit invocation
+2. Resolves the target PR from the arguments, the current branch, or a pick list of open PRs
+3. Gathers evidence from the conversation, filling gaps with real commit SHAs, file lines, versions, and error text
+4. Drafts the body against a fixed structure: Issue, Investigation, Root cause, Fix, Verification, Progress
+5. Shows the draft for approval, then posts it via `gh pr comment` and returns the comment URL
+
+## Modes
+
+**New** — Creates a fresh comment. Empty arguments or a short topic string.
+
+**Update** — Finds the existing comment by its format signature, ticks the boxes that are actually done, refreshes Fix or Verification if anything changed, and leaves everything else verbatim.
+
+**Resolve** — Everything Update does, plus ticking remaining boxes the user confirms and appending a resolved marker to the title. Idempotent if already resolved.
+
+## Guardrails
+
+Never posts or updates without approval. Never fabricates SHAs, file paths, line numbers, or test names. Never silently ticks a progress box. Stops and flags if `gh` is authenticated as an unexpected account.
+
+## Invoke
+
+```
+/make-issue-comment:make-issue-comment
+/make-issue-comment:make-issue-comment new swipe edit dead zone
+/make-issue-comment:make-issue-comment update
+/make-issue-comment:make-issue-comment resolve
+```

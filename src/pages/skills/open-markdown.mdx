@@ -1,0 +1,38 @@
+---
+layout: ../../layouts/SkillLayout.astro
+name: Open Markdown
+description: Offer to open freshly written markdown documents in mdreader
+version: "1.1.0"
+author: Robin van Baalen
+invoke: "/open-markdown:open-markdown"
+install: "open-markdown@rvanbaalen"
+repo: "rvanbaalen/skills"
+category: "skill"
+---
+
+## When to use
+
+Use when Claude writes a markdown file you actually intend to read through — a plan, spec, RFC, architecture or design doc, implementation guide, proposal, or status report. The skill triggers on its own after such a file is written and offers to render it in [mdreader](https://github.com/rvanbaalen/mdreader), which opens the document in your default browser. It stays quiet for trivial edits, config files, CLAUDE.md, commit messages, and memory files.
+
+It depends on the `mdreader` CLI. If it isn't on your PATH, the skill installs it via `brew install rvanbaalen/tap/mdreader`, and falls back to pointing you at the GitHub repo when Homebrew isn't available.
+
+## How it works
+
+1. Detects that a substantive, standalone markdown document was just written
+2. Checks whether `mdreader` is installed, installing it through Homebrew if not
+3. Asks a single two-option question: open it now, or continue without opening
+4. Runs `mdreader <path>` on yes — a background process, so the session never blocks
+
+## Capabilities
+
+**Single document** — One lightweight question right after the file is written, no explanation of what mdreader is.
+
+**Batched documents** — When several qualifying documents land in quick succession, they collapse into one question with all, pick, or none.
+
+**Explicit request** — Asking to open, view, or preview a markdown file skips the question entirely and opens it directly.
+
+## Invoke
+
+```
+/open-markdown:open-markdown
+```

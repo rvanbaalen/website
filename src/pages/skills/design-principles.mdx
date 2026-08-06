@@ -1,0 +1,42 @@
+---
+layout: ../../layouts/SkillLayout.astro
+name: Design Principles
+description: Eight principles for designing and reviewing interfaces, with trade-offs named out loud
+version: "0.1.0"
+author: Robin van Baalen
+invoke: "/design-principles:design-principles"
+install: "design-principles@rvanbaalen"
+repo: "rvanbaalen/skills"
+category: "skill"
+---
+
+## When to use
+
+Use when you want to design, review, critique, or improve a user interface — a screen, a flow, a component, a mockup, or a whole product experience. It triggers automatically on requests like "review this design", "is this good UX", or "help me design this screen". It stays out of the way for purely backend or data work.
+
+## The eight principles
+
+| Principle | In one line |
+|---|---|
+| **Purpose** | Every feature asks for time, attention, and trust. If you can't name its job in one sentence, cut it. |
+| **Agency** | Put people in control: offer choices, make undo easy, and interrupt only for real mistakes. |
+| **Responsibility** | Act in people's best interest. Ask for data only at the right moment, and design for how a feature could be misused. |
+| **Familiarity** | Build on what people already know — sound metaphors, consistent behaviour, predictable placement. |
+| **Flexibility** | Adapt to real lives: different contexts, devices, languages, abilities. Accessibility is a baseline, not a setting. |
+| **Simplicity** | Exactly enough, not minimal. Concise language, clear hierarchy — and sometimes *adding* context is the simpler answer. |
+| **Craft** | Detail that signals you care: type, colour across light and dark, iconography, responsive animation. Never "done". |
+| **Delight** | The emotional payoff, earned by getting the other seven right — not by bolting on confetti. |
+
+## How it works
+
+**Reviewing:** walks the principles in order, Purpose through Delight. Each pass gives a verdict, points at the specific element or moment, and proposes a concrete fix. Principles that aren't at stake are marked fine and skipped rather than padded with invented findings. It closes with the two or three highest-impact changes.
+
+**Designing:** uses the principles as direction instead of a post-hoc audit — leading with what the thing is for and what's being left out, then the key choices and the intent behind each.
+
+The core of the skill is the trade-off. There is no formula: more control costs simplicity, familiarity costs novelty, flexibility costs focus. So whenever honoring one principle costs another, the skill surfaces the tension explicitly — naming the conflict, the call it's making, and why. That reasoning matters more than the verdict, and a recommendation that quietly spends another principle is treated as a hidden decision, not a clean one.
+
+## Invoke
+
+```
+/design-principles:design-principles
+```

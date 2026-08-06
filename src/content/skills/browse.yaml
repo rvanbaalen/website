@@ -1,0 +1,8 @@
+name: Browse
+description: Fast headless browser for QA testing, dogfooding, and visual verification
+version: "1.1.0"
+author: Robin van Baalen
+invoke: "/browse:browse"
+trigger: auto
+category: skill
+order: 20

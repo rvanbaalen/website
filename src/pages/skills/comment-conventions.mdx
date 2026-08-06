@@ -1,0 +1,47 @@
+---
+layout: ../../layouts/SkillLayout.astro
+name: Comment Conventions
+description: Language-agnostic rules for code comments and docblocks, applied on every source-code edit
+version: "0.9.0"
+author: Robin van Baalen
+invoke: "/comment-conventions:comment-conventions"
+install: "comment-conventions@rvanbaalen"
+repo: "rvanbaalen/skills"
+category: "skill"
+---
+
+## When to use
+
+Use when you want every comment Claude writes to follow one consistent standard, in any language and any comment syntax — inline `//`, block `/* */`, JSDoc, TSDoc, PHPDoc, Python docstrings, Rustdoc, GoDoc, KDoc, YARD. The skill governs *how* a comment is written when one exists and *when* a docblock is required. It does not push for more comments: terse, well-named code with no inline comments is still the preferred outcome.
+
+## The rules
+
+**1 — Comments describe what is, not what was.** Present tense of the current implementation. No "we used to use a Map here". The one exception is a pointer that carries real context today — a ticket, RFC, ADR, or commit hash.
+
+**2 — Comments are for developers.** A comment answers "what does this do?" or "why is this here?". It does not market the feature, narrate the user-facing experience, or restate what the function name already says.
+
+**3 — New functions, methods, and components get a docblock.** Minimum is a one-line prose description of what it does and why it exists, plus params and return value. A docblock containing only `@param` / `@returns` tags with no prose is non-compliant — the tags restate the signature, the description carries the meaning.
+
+**4 — Docblock prose: at most 3 lines, each strictly shorter than the last.** Measured in characters, no "close enough". Write prose as continuous text and pick wrap points that taper leftward; sentence breaks mid-line are fine. Applies only to the prose block — tag sections and inline comments are exempt.
+
+**5 — Inline comments stay terse.** The default is none. Write one only when the *why* of the next line or two is non-obvious. No business-logic essays, no "step 1 / step 2" walkthroughs, no section banners. If it needs a paragraph, it belongs in the docblock, the ticket, or the commit message.
+
+**6 — Fix non-compliant existing code in place.** While working in a file, repair docblocks that are missing, tag-only, historical, or over the line budget — without asking first. Scoped to the region you are already touching, never a repo-wide rewrite. Deliberately long, thoughtful docblocks are left alone.
+
+## How it works
+
+The skill loads on any source-code edit and shapes the comments in the change itself: new functions come out with a compliant docblock, inline comments get trimmed to the *why*, and non-compliant docblocks in the surrounding region are corrected as they are encountered. Generated code, vendored dependencies, and third-party files are skipped.
+
+Rule 4 is the one that cannot be eyeballed — models are poor at counting characters, and a passing docblock differs from a violating one by a few characters on one line. The plugin ships a validator for exactly that, run on demand against a file:
+
+```bash
+node scripts/validate-docblocks.mjs <file>
+```
+
+It reports offending line numbers and character counts. The validator parses `/** ... */` blocks (JS, TS, PHP, Java, Kotlin, Swift, C#, C/C++, Rust block form) and skips forms it does not parse, such as Python triple-quote docstrings and Rustdoc `///` — verify those manually.
+
+## Invoke
+
+```
+/comment-conventions:comment-conventions
+```

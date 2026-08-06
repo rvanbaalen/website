@@ -1,0 +1,8 @@
+name: Design Principles
+description: Eight principles for designing and reviewing interfaces, with trade-offs named out loud
+version: "0.1.0"
+author: Robin van Baalen
+invoke: "/design-principles:design-principles"
+trigger: auto
+category: skill
+order: 19

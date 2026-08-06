@@ -1,0 +1,52 @@
+---
+layout: ../../layouts/SkillLayout.astro
+name: Disk Cleanup
+description: Reclaim macOS disk space through a safety-tiered identify, propose, execute flow
+version: "0.1.0"
+author: Robin van Baalen
+invoke: "/disk-cleanup:disk-cleanup"
+install: "disk-cleanup@rvanbaalen"
+repo: "rvanbaalen/skills"
+category: "skill"
+---
+
+## When to use
+
+Use when a macOS machine is running out of disk space and you want the junk gone without losing anything that matters. It is macOS-only — it measures the Data volume, leans on macOS-native tooling, and finishes by thinning Time Machine local snapshots. Manual-only: it never triggers itself, you invoke it.
+
+## How it works
+
+1. **Identify** — read-only scan of real free space (`/System/Volumes/Data`, not `df /`), snapshot count, the known heavy targets, biggest apps, and `~/Library` data orphaned by uninstalled apps
+2. **Propose** — every candidate is categorized by safety tier and presented as a table of size, what it is, tier, and recovery cost
+3. **Execute** — approved deletions run through tool-native cleaners (`brew cleanup`, `docker system prune`, `xcrun simctl delete`, `ollama rm`) rather than raw `rm`
+
+The three tiers set the confirmation bar. **Tier 1** is pure regenerable cache — caches, build artifacts, package downloads — deleted freely and in batches. **Tier 2** is recreatable but costly or opinionated (whole SDKs, all simulators, Docker volumes, Ollama models, app uninstalls) and takes one confirmation per decision. **Tier 3** is data — VMs that may hold your files, wallet data, messaging history, media — and is never touched without explicit, specific confirmation. When a tier is ambiguous it is treated as the higher one.
+
+Version stacks keep the current plus latest and respect project pins (`.nvmrc`, pinned NDK and build-tools). Permission walls are explained and handed back rather than fought: root-owned apps in `/Applications` need your `sudo`, and TCC-protected `~/Library/Containers` needs Full Disk Access or a drag to the Trash in Finder.
+
+Thinning Time Machine local snapshots comes **last**, on purpose. Deleted bytes stay claimed while a snapshot references them, so free space can refuse to move until snapshots are purged. The run ends with before/after free space on the Data volume — and if the number did not move, it investigates instead of claiming a win.
+
+## What it covers
+
+- **Caches** — `~/Library/Caches`, `~/.cache`, package-manager caches (Homebrew, npm, yarn, bun, uv)
+- **Docker** — unused images, build cache, dangling volumes
+- **Node** — nvm Node versions plus npm / yarn / bun caches
+- **Xcode & iOS** — DerivedData, DeviceSupport, simulators, old runtimes
+- **Android** — SDK (NDK, system images, build-tools), AVDs, Gradle caches
+- **JetBrains** — old per-version IDE config and caches
+- **VMs** — Parallels, VirtualBox, Vagrant
+- **Ollama** — local LLM models
+- **Apps** — biggest apps, orphaned app data, full end-to-end uninstalls
+- **Snapshots** — thin Time Machine local snapshots to realize the freed space
+
+## Invoke
+
+```
+/disk-cleanup:disk-cleanup
+
+/disk-cleanup:disk-cleanup docker
+
+/disk-cleanup:disk-cleanup help
+```
+
+With no argument it runs the full `all` flow. A scope argument (`caches`, `docker`, `node`, `xcode`, `android`, `ollama`, `jetbrains`, `vms`, `apps`, `snapshots`) narrows every phase to that area. `help` prints the scope table and stops without scanning.

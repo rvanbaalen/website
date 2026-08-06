@@ -1,0 +1,8 @@
+name: Comment Conventions
+description: Language-agnostic rules for code comments and docblocks, applied on every source-code edit
+version: "0.9.0"
+author: Robin van Baalen
+invoke: "/comment-conventions:comment-conventions"
+trigger: auto
+category: skill
+order: 18

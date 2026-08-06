@@ -1,0 +1,57 @@
+---
+layout: ../../layouts/SkillLayout.astro
+name: Browse
+description: Fast headless browser for QA testing, dogfooding, and visual verification
+version: "1.1.0"
+author: Robin van Baalen
+invoke: "/browse:browse"
+install: "browse@rvanbaalen"
+repo: "rvanbaalen/skills"
+category: "skill"
+---
+
+## When to use
+
+Use when you want Claude to actually look at a page instead of guessing: opening a URL, testing a site, taking a screenshot, dogfooding a feature, or verifying a deployment. It triggers on phrases like "open in browser", "test the site", or "take a screenshot".
+
+Requires a one-time build (~30 seconds, needs [bun](https://bun.sh)) the first time the skill runs. The skill checks for the binary and asks before building.
+
+## Capabilities
+
+**Accessibility snapshots with refs** — `snapshot -i` prints an indented tree of interactive elements tagged `@e1`, `@e2`, … Those refs then work as selectors in any command (`click @e3`, `fill @e4 "value"`). `-C` also catches non-ARIA clickables — divs with `cursor:pointer`, `onclick`, or `tabindex`.
+
+**Before/after diffs** — `snapshot -D` stores a baseline and prints a unified diff on the next call, so you see exactly what an interaction changed.
+
+**Annotated and responsive screenshots** — `snapshot -a -o out.png` overlays red boxes and ref labels for bug reports. `responsive` captures mobile, tablet, and desktop in one shot. `prettyscreenshot` adds clutter removal, scroll positioning, and element hiding; `viewport --scale 2` gives retina output.
+
+**State assertions** — `is visible|hidden|enabled|disabled|checked|editable|focused` on any selector or ref, plus `console`, `network`, and `perf` for JS errors, failed requests, and load timings.
+
+**Forms, dialogs, and uploads** — `fill`, `select`, `type`, `press`, `upload`, and `dialog-accept` / `dialog-dismiss` cover full flows. Cookies, headers, storage, and user agent are all settable.
+
+**Headed mode and proxies** — `--headed` opens a visible Chromium (auto-spawning Xvfb on headless Linux) for sites that block headless browsers; `--proxy` supports HTTP and authenticated SOCKS5.
+
+**User handoff** — `handoff` opens a visible Chrome at the current page when Claude hits a CAPTCHA, MFA, or an OAuth flow it can't complete. All state survives; `resume` re-snapshots and hands control back.
+
+**Offline rendering** — `goto file://…` or `load-html` renders local HTML with zero network, so it doubles as a rasterizer for diagrams, cards, and og-images without installing a second Chromium.
+
+Also included: page text and HTML extraction, structured data (JSON-LD, Open Graph, Twitter Cards), link and form dumps, media scraping, MHTML archiving, PDF export, CSS cascade inspection with live style edits and undo, tab management, iframe switching, and cross-environment text diffs.
+
+## How it works
+
+1. The first command auto-starts a persistent Chromium daemon (~3s).
+2. Every command after that reuses the same browser — roughly 100ms each.
+3. Cookies, tabs, and login sessions persist between calls, so multi-step flows work without re-authenticating.
+4. Output from the page (text, HTML, console, snapshots) is wrapped in untrusted-content markers so page content is never treated as instructions.
+5. `--headed` and `--proxy` only apply to a fresh daemon; a mismatched config fails loudly rather than silently restarting and dropping your session.
+
+One shared Chromium per machine — no per-project Puppeteer install.
+
+## Invoke
+
+```
+/browse:browse
+```
+
+## Credits
+
+This plugin is a standalone extraction of the `browse` skill from [gstack](https://github.com/garrytan/gstack) by **Garry Tan**, MIT licensed. All browser engine code is his work; this plugin only packages it for the Claude Code marketplace.
