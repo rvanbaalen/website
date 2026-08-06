@@ -2,10 +2,10 @@
 layout: ../../layouts/SkillLayout.astro
 name: Lottie Animator
 description: Generate professional Lottie animations from static SVGs
-version: "1.0.0"
+version: "1.1.0"
 author: obeskay
 authorUrl: "https://github.com/obeskay"
-invoke: "/rvanbaalen:lottie-animator"
+invoke: "/lottie-animator:lottie-animator"
 install: "lottie-animator@rvanbaalen"
 repo: "rvanbaalen/skills"
 category: "skill"
@@ -13,26 +13,51 @@ category: "skill"
 
 ## When to use
 
-Use when you need to animate SVGs into Lottie JSON without After Effects. Supports logo animations, loading spinners, icon transitions, character rigs, morphing, path drawing, and frame-by-frame techniques.
+Use when an SVG needs to move: logo and icon animation, loading spinners, entrance and
+loop effects, path-drawing reveals, icon morphs, and character work such as walk and run
+cycles. Output is Lottie JSON, so it replaces an After Effects round-trip.
 
 ## How it works
 
-1. Reads and analyzes your SVG's path structure
-2. Determines the right animation approach (wiggle, bounce, rotate, pulse, morph, trim path, etc.)
-3. Converts SVG paths to Lottie vertex format with proper bezier curves
-4. Generates a valid Lottie JSON file ready for `lottie-web` or any Lottie player
+1. **Motion philosophy** — pins down personality, emotional response, and motion
+   metaphor before any JSON is written
+2. **SVG analysis** — structure, viewBox, vertex counts, path commands, hierarchy, and
+   which parts can move independently
+3. **Strategy selection** — draw-on, pop-in, morph, stagger, character rig, loader, or
+   frame-by-frame
+4. **JSON authoring** — SVG path commands converted to Lottie vertices with in/out
+   tangents
+5. **Easing** — named bezier tangent pairs per use case (entrance, exit, loop, bounce,
+   spring)
+6. **Validation** — JSON parsed and previewed at lottiefiles.com/preview
 
-## Supported effects
+## Capabilities
 
-- Wiggle, bounce, rotate, pulse, fade, scale
-- Shape morphing (icon transitions)
-- Trim path (drawing/reveal animations)
-- Character animation and walk cycles
-- Entrance, loop, and loading animations
-- Professional bezier curve easing
+- **Trim path, repeater, and offset path** shape modifiers
+- **Frame-by-frame animation** via `ip`/`op` layer switching — the recommended route for
+  walk cycles and shapes too complex to morph cleanly
+- **Layer parenting** for bone hierarchies, with child positions relative to the parent
+- **Path morphing** between shapes with matching vertex counts
+- **Track mattes** — alpha, alpha-inverted, luma, luma-inverted
+- **Animation principles** — anticipation, squash and stretch with volume preservation,
+  staggered timing, follow-through with overshoot
+- **Recipes** — loading spinner, checkmark draw, heart beat, icon pop-in with bounce
+- **Icon library notes** for Phosphor and Lucide, plus stroke-plus-fill outline styling
+- **Performance budgets** — under 15 layers, under 20 vertices per morphing shape,
+  under 50KB for icons
+
+## Requirements
+
+No external services. `python3` is used only to validate the generated JSON.
 
 ## Invoke
 
 ```
-/rvanbaalen:lottie-animator
+/lottie-animator:lottie-animator
 ```
+
+## Credits
+
+Skill authored by [**obeskay**](https://github.com/obeskay). This marketplace only
+packages it for distribution; the animation techniques and reference material are their
+work.

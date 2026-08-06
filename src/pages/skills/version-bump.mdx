@@ -2,9 +2,9 @@
 layout: ../../layouts/SkillLayout.astro
 name: Version Bump
 description: Auto-suggest semver version bumps for changed plugins before pushing
-version: "1.0.0"
+version: "1.1.0"
 author: Robin van Baalen
-invoke: "/rvanbaalen:version-bump"
+invoke: "/version-bump:version-bump"
 install: "version-bump@rvanbaalen"
 repo: "rvanbaalen/skills"
 category: "skill"
@@ -12,23 +12,26 @@ category: "skill"
 
 ## When to use
 
-Use before pushing changes in a marketplace project. The skill detects which plugins have changed, analyzes the diff to determine the appropriate semver bump level, and updates version numbers in both `plugin.json` and `marketplace.json`.
+Use before pushing changes in a Claude Code plugin marketplace — any repo with a `.claude-plugin/marketplace.json` at its root. It catches plugins whose files changed but whose version didn't, so installers can tell when an update is available. In a non-marketplace repo the skill stays out of the way entirely.
 
 ## How it works
 
-1. Compares your branch against the upstream to find changed plugin files
-2. For each affected plugin, reads the current version
-3. Analyzes the actual diff to categorize changes:
-   - **Patch** — typo fixes, description updates, bug fixes
-   - **Minor** — new skills, new features, significant additions
-   - **Major** — renamed/removed skills, breaking changes
-4. Suggests a bump level and asks for confirmation
-5. Updates version in both `plugin.json` and `marketplace.json`
+1. Diffs the branch against its upstream (or the default branch, for a new branch) and extracts the plugin names under `plugins/<name>/...`
+2. Reads the current version from both `plugins/<name>/.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`, flagging any drift between them
+3. Reads the actual diff to categorize the change:
+   - **Patch** — typo fixes, wording, metadata and description updates
+   - **Minor** — new skills, new reference files or agents, significant additions
+   - **Major** — renamed or removed skills, changed invocation names, restructured layout
+4. Presents each plugin with its current version, a summary of what changed, the suggested level and reasoning, and the resulting version — then waits for you to confirm or override
+5. Asks which files to write: `plugin.json` only, `marketplace.json` only, or both. It never assumes both.
+6. Commits the version files as `chore: bump <plugin> to <version>` and proceeds with the push
+
+Each changed plugin is handled separately, so they can take different bump levels. If no plugin files changed, or you decline the bumps, the push goes ahead untouched.
 
 ## Invoke
 
 Triggers automatically when you push in a marketplace project, or invoke manually:
 
 ```
-/rvanbaalen:version-bump
+/version-bump:version-bump
 ```

@@ -2,9 +2,9 @@
 layout: ../../layouts/SkillLayout.astro
 name: Time Registration
 description: Git-based time registration summaries
-version: "1.0.0"
+version: "1.3.1"
 author: Robin van Baalen
-invoke: "/rvanbaalen:time-registration"
+invoke: "/time-registration:time-registration"
 install: "time-registration@rvanbaalen"
 repo: "rvanbaalen/skills"
 category: "skill"
@@ -12,26 +12,36 @@ category: "skill"
 
 ## When to use
 
-Use when you need a quick summary of what you worked on for time sheets, standups, or status updates. Reads your git history and distills it into a single human-readable line.
+Use when you need a quick summary of what you worked on for a timesheet, standup, or status update. It reads your git history — including work done in other worktrees, pushed from other machines, or already squash-merged — and distills it into a single line.
 
 ## How it works
 
-1. Parses your time period argument (defaults to "yesterday")
-2. Queries `git log` for your commits in that range
-3. Groups related commits into logical work items
-4. Produces a comma-separated summary in past-tense, plain English
+1. Parses your time period argument (defaults to today)
+2. Runs `git fetch --all --prune` so remote-tracking refs are current; continues offline if the fetch fails
+3. Enumerates every worktree of the repo and scans `git log --all` in each, filtered by your `user.name` and `user.email`, then dedupes by commit SHA
+4. Queries `gh pr list --author "@me"` for PRs merged in the same window, recovering squash-merged work whose branch was pruned
+5. Groups related commits and PR titles into logical work items, preferring PR titles where they read better
+6. Prints one comma-separated, past-tense line and offers to copy it to the clipboard via `pbcopy`
+
+Skips the GitHub step silently when `gh` isn't installed or the repo isn't on GitHub.
 
 ## Example output
 
 ```
-Implemented user authentication, fixed pagination bug on dashboard, upgraded React from 18 to 19
+Implemented user authentication, fixed pagination bug on dashboard, upgraded React from 18 to 19, refactored API error handling
 ```
 
 ## Invoke
 
+Takes an optional period argument; defaults to today.
+
 ```
-/rvanbaalen:time-registration            # yesterday
-/rvanbaalen:time-registration last 3 days
-/rvanbaalen:time-registration this week
-/rvanbaalen:time-registration last week
+/time-registration:time-registration              # today
+/time-registration:time-registration yesterday
+/time-registration:time-registration this-week
+/time-registration:time-registration last-week
+/time-registration:time-registration last-3-days
+/time-registration:time-registration since-friday
 ```
+
+It also triggers automatically when you ask what you worked on today, yesterday, or last week.

@@ -1,10 +1,10 @@
 ---
 layout: ../../layouts/SkillLayout.astro
 name: React Query
-description: TanStack Query v5 best practices, code review, and coding standards
-version: "1.0.0"
+description: TanStack Query v5 skill with three modes — review, v4→v5 migration, and coding guidance
+version: "2.0.0"
 author: Robin van Baalen
-invoke: "/rvanbaalen:react-query"
+invoke: "/react-query:react-query"
 install: "react-query@rvanbaalen"
 repo: "rvanbaalen/skills"
 category: "skill"
@@ -12,34 +12,34 @@ category: "skill"
 
 ## When to use
 
-Use whenever you're writing or reviewing code that uses TanStack Query v5. The skill catches common anti-patterns, enforces best practices, and helps migrate from v4 patterns.
+Use when writing, reviewing, or upgrading code that touches TanStack Query. It covers auditing existing data-fetching code, replacing `useEffect`/`useState` fetching, cache invalidation, optimistic updates, prefetching, infinite scroll, Suspense integration, auth/token-refresh wiring, and MSW test setup.
 
 ## How it works
 
-Operates in two modes:
+Every rule is cited to a page in the [TanStack Query v5 docs](https://tanstack.com/query/v5/docs/framework/react/overview) or explicitly flagged as a community practice. The docs win on conflict — the skill tells you to fetch the cited URL and verify rather than trust its own summary.
 
-### Review mode
+`SKILL.md` stays small and routes to eight reference files: `review-checklist.md`, `coding-standards.md`, `v5-migration.md`, `setup.md`, `query-patterns.md`, `mutations.md`, `auth.md`, and `testing.md`.
 
-Audits existing code for critical issues and anti-patterns:
-- Server state copied to client state (`useState` + `useEffect` that copies query data)
-- `fetch()` without `response.ok` checking
-- Cache mutation via `setQueryData` without returning new references
-- Missing invalidation in `onSettled`
-- `gcTime` lower than `staleTime`
-- Scattered inline query keys instead of `queryOptions` factories
+## Modes
 
-### Coding mode
+The three modes compose — an upgraded v4 project typically wants migration first, then a review pass.
 
-Enforces strict v5 patterns when writing new code:
-- `queryOptions` factories for type-safe, reusable query definitions
-- Proper query key hierarchies
-- Correct mutation callback separation
-- Suspense integration with React 19
+### Review
+
+Maps the surface area (imports, `QueryClient` defaults, every hook call site, `queryOptions` factories vs. inline keys), then runs a numbered checklist: critical issues C1–C6, warnings W1–W14, and v4→v5 migrations M1–M12. Output is a fixed report format with `file:line`, a v5 doc URL per finding, and before/after fixes. It will not invent findings to pad the report.
+
+### Migrate
+
+Full v4→v5 change list, including the official `remove-overloads` jscodeshift codemod and the manual renames it does not cover — `cacheTime → gcTime`, `keepPreviousData → placeholderData: keepPreviousData`, `suspense: true → useSuspenseQuery`, `useErrorBoundary → throwOnError`, `<Hydrate> → <HydrationBoundary>`, `status === 'loading' → 'pending'`, required `initialPageParam`, and the removal of `onSuccess`/`onError`/`onSettled` from query configs.
+
+### Code
+
+Opinionated rules for new v5 code: global `staleTime > 0` with `gcTime >= staleTime`, module-scope `QueryClient`, `queryOptions` factories with generic→specific keys, `queryKey` treated as a dependency array, `response.ok` checks in every fetch-based `queryFn`, `select` instead of copying to state, `skipToken` for conditional fetching, returning the `invalidateQueries` promise from mutation `onSuccess`, invalidating in `onSettled` for optimistic updates, `useSuspenseQueries` for parallel Suspense reads, and a fresh `QueryClient` per test.
 
 ## Invoke
 
 ```
-/rvanbaalen:react-query
+/react-query:react-query
 ```
 
-Also auto-triggers when it detects `@tanstack/react-query` imports in your code.
+Also auto-triggers on imports from `@tanstack/react-query` or its devtools, and on hooks like `useQuery`, `useMutation`, `useSuspenseQuery`, `useInfiniteQuery`, `useQueries`, `queryOptions`, or `skipToken`.

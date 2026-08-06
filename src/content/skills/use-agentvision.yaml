@@ -1,8 +1,8 @@
 name: Use AgentVision
 description: See and interact with the user's screen using screenshots, element discovery, clicks, form filling, and visual QA
-version: "1.0.0"
+version: "1.2.0"
 author: Robin van Baalen
-invoke: "/rvanbaalen:use-agentvision"
+invoke: "/use-agentvision:use-agentvision"
 trigger: auto
 category: skill
 order: 12

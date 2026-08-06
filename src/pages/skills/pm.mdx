@@ -2,7 +2,7 @@
 layout: ../../layouts/SkillLayout.astro
 name: PM
 description: Delivery-focused project manager that enforces deadlines, tracks estimates, detects drift, and holds you accountable
-version: "2.0.0"
+version: "2.0.1"
 author: Robin van Baalen
 invoke: "/pm"
 install: "pm@rvanbaalen"
@@ -12,39 +12,42 @@ category: "agent"
 
 ## When to use
 
-Use when you need accountability on deadlines and delivery. The PM agent tracks estimates vs. actuals, detects anti-patterns (scope creep, gold plating, yak shaving), and adapts its tone based on timeline pressure: supportive when there's slack, blunt when you're overdue. It scales from a single task to a full project breakdown with milestones, and journals every session so nothing slips through the cracks.
+Use when you need accountability on deadlines and delivery. The PM agent tracks estimates vs. actuals, flags anti-patterns, and adapts its tone to timeline pressure: supportive when there's slack, firm when it tightens, blunt when you're overdue. It scales from a single task to a full project breakdown with milestones, and journals every session so nothing slips.
 
 ## How it works
 
-1. **Bootstrap** — On invocation, the orchestrator computes a project hash from your working directory, loads (or creates) a config file, and runs any version migrations needed.
-2. **Setup** — First run triggers project onboarding: you define the project name, role, hard deadline, and initial data scaffolding.
-3. **Plan** — Define milestones, tasks, and estimates. The agent always asks you for estimates rather than guessing, and attaches deadlines to everything.
-4. **Session start** — Each session opens with a timeline health check, plan alignment validation, and a journal entry.
-5. **Work** — During the session the PM monitors progress, flags drift, and holds you to your own estimates.
-6. **Session end** — The journal is reconciled against structured files, actual durations are computed from timestamps, and background sub-agents handle cleanup.
-7. **Review** — On-demand progress analysis: timeline health, estimation accuracy, blocker history, and recommendations.
+`/pm` is a thin orchestrator. It does three things, then gets out of the way:
+
+1. **Bootstrap** — computes a project hash from your working directory, loads or creates the config for that project, runs any pending version migrations, and verifies the data files exist.
+2. **Check planning state** — if `planning_completed` is unset, the session becomes a planning conversation. If the data path is broken, it offers to re-run setup.
+3. **Spawn the PM agent** — hands off config path, data path, project name, role, and hard deadline to the `pm` agent, which owns the conversation from there.
+
+State lives in per-project markdown files: `milestones.md`, `tasks.md`, `blockers.md`, `estimates.md`, `overrules.md`, plus dated journals under `sessions/`. The journal is the source of truth — session-end reconciles the structured files against it rather than reconstructing from memory.
+
+A second agent, `self-reflect`, validates proposed actions before file writes land. It checks that estimates came from you, completions were confirmed, scope changes were consented to, and actuals were computed from timestamps.
 
 ## Sub-skills
 
 | Skill | Description | Invoke |
 |-------|-------------|--------|
-| pm | Orchestrator and entry point | `/pm` |
-| setup | Project onboarding and reconfiguration | `/pm:setup` |
-| plan | Define milestones, tasks, and estimates | `/pm:plan` |
-| session-start | Check-in with timeline health and journal logging | `/pm:session-start` |
-| session-end | Journal-based reconciliation with background sub-agents | `/pm:session-end` |
-| review | Progress analysis, estimation accuracy, time tracking | `/pm:review` |
-| reprioritize | Reshuffle tasks to protect deadlines | `/pm:reprioritize` |
-| status-report | Export-ready status for clients, teams, or personal logs | `/pm:status-report` |
+| pm | Orchestrator and entry point — bootstraps context and spawns the PM agent | `/pm` |
+| setup | Project onboarding and configuration: context, deadlines, data scaffolding. Safe to re-run | `/pm:setup` |
+| plan | Define milestones, tasks, and estimates. Always attaches deadlines, always asks you for estimates | `/pm:plan` |
+| session-start | Check-in: timeline health, plan alignment, session intent, `SESSION_START` journal entry | `/pm:session-start` |
+| session-end | Wrap-up: reconciles the journal against structured files, computes actual durations from timestamps | `/pm:session-end` |
+| review | On-demand analysis: timeline health, estimation accuracy, blocker history, anti-patterns, overrules | `/pm:review` |
+| reprioritize | Reshuffle when stuck or drifting — identifies the critical path and parks non-essential work | `/pm:reprioritize` |
+| status-report | Export-ready summary for clients, team leads, standups, or personal logs | `/pm:status-report` |
 
 ## What's new in v2.0
 
-- Context bootstrapping with project hashing and automatic config detection
-- Persistent session journaling with timestamp-based duration tracking
-- Planning state verification before every session
-- Automatic version migration from v1.x projects
-- Ask-first estimation protocol — the agent never guesses your estimates
-- Self-reflect validation after structural changes
+- Journal system: sessions write machine-parseable event entries to `sessions/YYYY-MM-DD-journal.md`
+- Estimation tracking split into separate `Estimated` and `User Est` columns
+- Config tracks the plugin version via `pm_version`, with automatic forward-only migration from v1.x
+- Self-reflect validation agent gates file writes
+- Context bootstrap standardized across every sub-skill, so each one works standalone
+
+v1.x projects migrate on first run — no manual steps.
 
 ## Getting started
 

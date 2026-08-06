@@ -2,8 +2,9 @@
 layout: ../../layouts/SkillLayout.astro
 name: Driver.js Guide
 description: Product tours, onboarding flows, and element highlighting reference
-version: "1.0.0"
+version: "1.1.0"
 author: Robin van Baalen
+invoke: "/driverjs-guide:driverjs-guide"
 install: "driverjs-guide@rvanbaalen"
 repo: "rvanbaalen/skills"
 category: "skill"
@@ -11,27 +12,31 @@ category: "skill"
 
 ## When to use
 
-Use when implementing product tours, onboarding flows, or element highlighting with Driver.js. This skill is auto-triggered when it detects `driver.js` imports or mentions in your code.
+Use when building product tours, onboarding flows, guided walkthroughs, contextual form help, feature announcements, or "turn off the lights" focus overlays with Driver.js. Not for unrelated tooltip libraries (Tippy.js, Floating UI) or general CSS overlay questions.
 
 ## How it works
 
-Provides a complete reference for Driver.js, including:
-- Installation and setup for npm, pnpm, yarn, or CDN
-- Highlight API for focusing on individual elements
-- Tour API for multi-step guided walkthroughs
-- Popover customization (positioning, buttons, progress)
-- Async step handling for dynamic content
-- Event hooks for controlling tour flow
-- Styling and theming options
+Starts with a pre-flight dependency check — grep `package.json`, the lock file, and existing `driver.js` imports — so it either matches the project's existing conventions or emits the right install command for the detected package manager. From there it is a complete API reference covering the three configuration layers (driver-level, popover, and per-step `DriveStep`), where step-level settings override global ones.
 
-## Key features
+## Capabilities
 
-- Lightweight (~5kb gzipped), zero dependencies
-- SVG overlay approach avoids z-index issues
-- Works with any framework (React, Vue, vanilla JS)
-- Supports async/dynamic tours
-- "Turn off the lights" focus effects
+- Installation via npm, pnpm, yarn, or CDN, plus the required `driver.js/dist/driver.css` import
+- Multi-step tours (`drive()`), single-element highlights (`highlight()`), and element-less floating popovers
+- Full config reference: `animate`, `smoothScroll`, `overlayColor`/`overlayOpacity`, `allowClose`, `overlayClickBehavior`, `stagePadding`/`stageRadius`, `allowKeyboardControl`, `disableActiveInteraction`, button and progress options
+- Every lifecycle hook — `onPopoverRender`, `onHighlightStarted`, `onHighlighted`, `onDeselected`, `onDestroyStarted`, `onDestroyed`, `onNextClick`, `onPrevClick`, `onCloseClick` — with the `State` and `PopoverDOM` shapes they receive
+- Runtime API: `moveNext`, `movePrevious`, `moveTo`, `refresh`, `setConfig`, `setSteps`, `getState`, and the step-position queries
+- Theming: the full CSS class list, `popoverClass` scoping, and the arrow border-color classes you must update alongside a custom background
+- Recipes: async/dynamic tours, confirm-before-exit, locked tours, `element` as a resolver function, popover `side`/`align` placement, and custom footer buttons
+- React and Vue integration patterns, including `destroy()` on unmount
 
-## Trigger
+## Pitfalls it catches
 
-This skill activates automatically when it detects Driver.js usage in your project. No manual invocation needed.
+Overriding `onNextClick`/`onPrevClick` disables default navigation — you must call `moveNext()`/`movePrevious()` yourself; the same applies to `onDestroyStarted` and `destroy()`. It also covers arrow/background color mismatches, stale highlight positions after layout shifts, missing CSS imports, and running more than one driver instance at a time.
+
+## Invoke
+
+```
+/driverjs-guide:driverjs-guide
+```
+
+Also auto-triggers on `driver.js` usage or on phrases like "product tour", "onboarding tour", "walkthrough", or "element highlighting".

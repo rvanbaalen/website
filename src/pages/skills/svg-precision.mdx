@@ -1,10 +1,10 @@
 ---
 layout: ../../layouts/SkillLayout.astro
 name: SVG Precision
-description: Deterministic SVG generation, validation, and rendering
-version: "1.0.0"
+description: Build SVGs from a strict JSON spec, then validate and render them
+version: "1.1.0"
 author: dkyazzentwatwa
-invoke: "/rvanbaalen:svg-precision"
+invoke: "/svg-precision:svg-precision"
 install: "svg-precision@rvanbaalen"
 repo: "rvanbaalen/skills"
 category: "skill"
@@ -12,22 +12,30 @@ category: "skill"
 
 ## When to use
 
-Use for icons, diagrams, charts, UI mockups, or technical drawings that require structural correctness and cross-viewer compatibility. This skill generates SVGs from a strict JSON spec, validates them, and optionally renders PNG previews.
+Use for icons, diagrams, charts, UI mockups, or technical drawings where the markup has
+to be structurally correct and render the same across viewers. Instead of hand-writing
+SVG, the request becomes a JSON scene graph that is built and then checked.
 
 ## How it works
 
-1. Translates your request into a structured JSON spec (scene graph)
-2. Builds the SVG using deterministic rules
-3. Validates the output for structural correctness
-4. Optionally renders a PNG preview via CairoSVG
+1. Turns the request into a **Spec JSON** using a template from `references/spec.md`
+2. Builds the SVG — `python scripts/svg_cli.py build spec.json out.svg`
+3. Validates it — `python scripts/svg_cli.py validate out.svg`
+4. Optionally renders a PNG preview — `render out.svg out.png --scale 2`
+5. Optionally image-diffs two SVGs — `diff a.svg b.svg diff.png`
+
+The same code is importable as a library: `build_svg(spec_dict)` and
+`validate_svg(svg_text)` from `svg_skill`.
 
 ## Design rules
 
-- Always sets explicit `viewBox`, `width`, and `height`
-- Prefers absolute coordinates over transforms
-- Keeps numbers sane (no NaN/inf, rounds to 3-4 decimals)
-- Reusable items go in `defs` (markers, gradients, clipPaths)
-- Avoids exotic filters unless required for cross-viewer safety
+- Always sets `canvas.viewBox` plus explicit `canvas.width` / `canvas.height`
+- Prefers absolute coordinates; transforms only when they reduce complexity
+- Keeps numbers sane — no NaN/inf, rounded to 3-4 decimals
+- Reusable items live in `defs` (markers, gradients, clipPaths) and are referenced by id
+- Avoids exotic filters for cross-viewer predictability
+- Treats text as a rendering risk (fonts vary); prefers shapes when pixel-identical
+  output matters
 
 ## Default canvas sizes
 
@@ -37,9 +45,20 @@ Use for icons, diagrams, charts, UI mockups, or technical drawings that require 
 | UI mockups | 1440x900 or 390x844 (mobile) |
 | Charts | 800x450 |
 | Diagrams | 1200x800 |
+| Technical drawings | Explicit units (mm/in) and scale |
+
+## Requirements
+
+Python for the bundled CLI. PNG rendering and diffing additionally require CairoSVG;
+build and validate work without it.
 
 ## Invoke
 
 ```
-/rvanbaalen:svg-precision
+/svg-precision:svg-precision
 ```
+
+## Credits
+
+Skill authored by **dkyazzentwatwa**. This marketplace only packages it for
+distribution; the spec builder and validator are their work.

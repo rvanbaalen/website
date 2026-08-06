@@ -1,10 +1,10 @@
 ---
 layout: ../../layouts/SkillLayout.astro
 name: OCR Document Processor
-description: Extract text from images and scanned PDFs using OCR
-version: "1.0.0"
+description: Extract text from images and scanned PDFs using Tesseract OCR
+version: "1.1.0"
 author: dkyazzentwatwa
-invoke: "/rvanbaalen:ocr-document-processor"
+invoke: "/ocr-document-processor:ocr-document-processor"
 install: "ocr-document-processor@rvanbaalen"
 repo: "rvanbaalen/skills"
 category: "skill"
@@ -12,26 +12,45 @@ category: "skill"
 
 ## When to use
 
-Use when you need to extract text from images, scanned PDFs, or photographs. Supports over 100 languages, table detection, and structured output formats.
+Use when text is locked inside an image or a scanned PDF: receipts, business cards,
+contracts, screenshots, archive scans. The skill wraps a bundled Python module
+(`scripts/ocr_processor.py`) that drives Tesseract, so it also works as a plain CLI
+outside Claude.
 
 ## How it works
 
-1. Reads the input file (PNG, JPEG, TIFF, BMP, or PDF)
-2. Runs OCR with language detection
-3. Returns extracted text with confidence scoring
-4. Optionally structures output as markdown, JSON, or HTML
+1. Loads the input (PNG, JPEG, TIFF, BMP, or PDF — all pages or a page subset)
+2. Optionally preprocesses the image: deskew, denoise, threshold, contrast, sharpen,
+   upscale, shadow removal
+3. Runs Tesseract with the requested language(s) and page segmentation mode
+4. Returns text plus blocks, lines, words, per-word confidence, and detected language
+5. Exports to Markdown, JSON, HTML, or a searchable PDF
 
 ## Capabilities
 
-- **Image OCR** — extract text from PNG, JPEG, TIFF, BMP
-- **PDF OCR** — process scanned PDFs page by page
-- **Multi-language** — supports 100+ languages
-- **Table detection** — extract tabular data to CSV/JSON
-- **Batch processing** — handle multiple documents at once
-- **Quality assessment** — confidence scoring for results
+- **Structured extraction** — bounding boxes per block/line/word with confidence scores
+- **Multi-language** — 100+ Tesseract languages, combinable (`eng+fra+deu`) or `auto`
+- **Preprocessing** — cleanup pass for noisy or skewed scans before recognition
+- **Table extraction** — tables out to CSV or JSON
+- **Searchable PDFs** — re-emit a scanned PDF with a text layer
+- **Document parsers** — receipts (vendor, date, line items, tax, total) and business
+  cards (name, title, company, email, phone, address, website)
+- **Batch mode** — `batch_ocr()` over a directory, recursive, with a success/failure count
+- **Tunable config** — PSM, OEM, DPI, timeout, minimum word confidence
+
+## Requirements
+
+The Tesseract OCR engine must be installed on the system, along with language data
+files for any non-English language. Python dependencies: `pytesseract`, `Pillow`,
+`PyMuPDF`, `opencv-python`, `numpy`.
 
 ## Invoke
 
 ```
-/rvanbaalen:ocr-document-processor
+/ocr-document-processor:ocr-document-processor
 ```
+
+## Credits
+
+Skill authored by **dkyazzentwatwa**. This marketplace only packages it for
+distribution; the OCR pipeline is their work.

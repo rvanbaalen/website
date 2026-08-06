@@ -1,8 +1,8 @@
 name: Version Bump
 description: Auto-suggest semver version bumps for changed plugins before pushing
-version: "1.0.0"
+version: "1.1.0"
 author: Robin van Baalen
-invoke: "/rvanbaalen:version-bump"
-trigger: manual
+invoke: "/version-bump:version-bump"
+trigger: auto
 category: skill
 order: 5

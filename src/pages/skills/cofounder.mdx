@@ -2,7 +2,7 @@
 layout: ../../layouts/SkillLayout.astro
 name: Cofounder
 description: Critical-thinking business co-founder that enforces prioritization and challenges assumptions
-version: "1.1.0"
+version: "1.2.0"
 author: Robin van Baalen
 invoke: "/cofounder"
 install: "cofounder@rvanbaalen"
@@ -16,23 +16,24 @@ Use when you need a thinking partner who pushes back. The Cofounder agent enforc
 
 ## How it works
 
-1. On launch, the orchestrator generates a project-scoped ID from your working directory so multiple cofounder instances can coexist across projects.
-2. If this is your first run, it triggers setup and onboarding to understand your business, goals, and primary metric.
-3. If a legacy (unscoped) config exists, it automatically migrates your data to the new project-scoped location.
-4. Once configured, it validates your workspace structure and spawns the cofounder agent with full business context.
-5. From there you can spar on ideas, run cadence-based check-ins, create action briefs, or review progress and priorities.
+1. On launch, the orchestrator derives a project-scoped ID from your working directory so multiple cofounder instances can coexist across projects. A legacy unscoped config is migrated automatically.
+2. First run triggers setup to create the workspace, then an onboarding intake conversation that populates goals, topics, and the up-next queue with real content.
+3. On later runs it validates the workspace structure and spawns the cofounder agent with your business name, type, stage, and primary metric as context.
+4. The agent detects which check-in is overdue by reading the daily log and the weekly, monthly, and quarterly review archives — no session-type menu. Higher cadences subsume lower ones (quarterly > monthly > weekly > daily), and it offers the overdue one before anything else.
+5. If you open with clear intent instead ("got an idea", a direct question), it skips the cadence prompt and routes straight to sparring or focused work.
+6. Goals cascade downward — north star, quarterly, monthly, weekly focus, daily check-in. Goals are never rewritten upward to justify what you actually worked on.
 
 ## Sub-skills
 
 | Skill | Description | Invoke |
 |-------|-------------|--------|
-| cofounder | Orchestrator and entry point | `/cofounder` |
-| setup | Onboarding and reconfiguration | `/cofounder:setup` |
-| onboard | First-time business context gathering | `/cofounder:onboard` |
-| check-in | Daily, weekly, monthly, quarterly cadences | `/cofounder:check-in` |
-| spar | Stress-test ideas through the business filter | `/cofounder:spar` |
-| action-brief | Create scoped action briefs from conversations | `/cofounder:action-brief` |
-| review | Review state, progress, and priorities | `/cofounder:review` |
+| cofounder | Orchestrator and entry point — detects state and routes | `/cofounder` |
+| setup | Configuration for the workspace. Safe to re-run | `/cofounder:setup` |
+| onboard | One-time business intake that grounds the co-founder in the real business | `/cofounder:onboard` |
+| check-in | Cadence-based session: daily, weekly, monthly, or quarterly | `/cofounder:check-in` |
+| spar | Stress-test an idea or initiative through the business filter | `/cofounder:spar` |
+| action-brief | Turn a conversation into a scoped action brief | `/cofounder:action-brief` |
+| review | Review current state, progress, and priorities | `/cofounder:review` |
 
 ## Getting started
 
@@ -41,13 +42,12 @@ Use when you need a thinking partner who pushes back. The Cofounder agent enforc
 /cofounder
 ```
 
-First run triggers onboarding automatically.
+First run triggers setup and onboarding automatically.
 
-## What's new in v1.1
+## What's new in v1.2
 
-- **Per-project scoping.** Config and workspace data are now scoped by project directory, so multiple cofounder instances can coexist on the same machine without conflicts.
-- **Automatic legacy migration.** Existing unscoped configs are detected and moved to the new project-scoped location on first run.
-- **Improved config validation.** The orchestrator now verifies the workspace structure before spawning the agent and offers clear recovery options if anything is missing.
+- **Automatic cadence detection.** The agent reads your check-in history and works out which review is due instead of showing a session-type menu. It respects clear intent and skips the prompt when you arrive with a topic.
+- **Onboarding intake conversation.** A dedicated `onboard` skill replaces empty template files with real goals, topics, and priorities after setup.
 
 ## Invoke
 

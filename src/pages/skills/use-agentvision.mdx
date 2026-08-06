@@ -2,9 +2,9 @@
 layout: ../../layouts/SkillLayout.astro
 name: Use AgentVision
 description: See and interact with the user's screen using screenshots, element discovery, clicks, form filling, and visual QA
-version: "1.0.0"
+version: "1.2.0"
 author: Robin van Baalen
-invoke: "/rvanbaalen:use-agentvision"
+invoke: "/use-agentvision:use-agentvision"
 install: "use-agentvision@rvanbaalen"
 repo: "rvanbaalen/skills"
 category: "skill"
@@ -12,35 +12,39 @@ category: "skill"
 
 ## When to use
 
-Use when you need Claude to see and interact with what is on your screen. This covers UI development feedback loops (before/after screenshots), visual QA of running applications, filling out forms, navigating desktop apps, and testing mobile emulators. Any task where Claude needs to observe pixels and drive the mouse or keyboard benefits from this skill.
+Use when Claude needs to see and drive what is on your real macOS screen: UI development feedback loops (before/after screenshots), visual QA of running apps, filling forms, navigating desktop applications, and testing iOS Simulator or Android emulators. Not for headless browser testing or Playwright/Puppeteer scripts.
+
+Requires the `agent-vision` CLI (`brew install rvanbaalen/tap/agent-vision`) plus Screen Recording and Accessibility permissions.
 
 ## How it works
 
-1. Starts a session via `agent-vision start`, which prompts you to select a screen region
-2. Scans the selected region for UI elements using the macOS Accessibility API
-3. Acts on discovered elements — clicking, typing, scrolling, dragging, or pressing keyboard shortcuts
-4. Waits briefly for the UI to settle, then re-scans because element indices become stale after every interaction
-5. Captures screenshots at any point to visually verify outcomes
-6. Ends the session with `agent-vision stop` when the task is complete
+1. Opens a session with `agent-vision open <App>`, which launches or activates the app and selects its window automatically — or `agent-vision start` for a manual region drag
+2. Scans the region with `agent-vision elements` to build an indexed list of accessibility and OCR elements
+3. Acts on a discovered element — click, type, key, scroll, drag
+4. Waits for the UI to settle, then re-scans, because element indices go stale after every update
+5. Captures screenshots and reads them back to verify outcomes visually
+6. Stops the session once you confirm you're done
 
 ## Capabilities
 
-**Session management** — all interactions are scoped to a user-selected screen region via a session UUID. Sessions are started and stopped explicitly, keeping control predictable.
+**Session management** — every command is scoped to a session UUID covering a selected screen region. `open` handles app launch and window selection; `start` covers custom regions.
 
-**Element discovery** — scans the region using the Accessibility API to build an indexed list of interactive elements. Prefers element-based targeting (`--element N`) over raw coordinates for reliability.
+**Element discovery** — indexed scans over the Accessibility API and OCR. Complex apps return 80+ elements, so scans are filtered with `jq` down to interactive accessibility nodes.
 
-**Screen capture** — takes screenshots of the selected region on demand, useful for visual diffing, QA reports, and verifying that an action had the intended effect.
+**Focus-free targeting** — `--element N` drives the Accessibility API without moving the cursor or stealing focus, so you can keep working in another window. `--at X,Y` is the fallback for canvas and custom-drawn UI, and is always verified with `agent-vision preview` first.
 
-**UI control** — clicks buttons, types into fields, scrolls content, drags elements, and sends keyboard shortcuts. All commands go through `agent-vision control` and stay within the selected area.
+**Screen capture** — screenshots of the region on demand, read back and described for before/after diffing and QA reports.
 
-**Coordinate verification** — falls back to coordinate-based interaction (`--at X,Y`) when accessibility targeting is unavailable, with cursor movement and focus management handled automatically.
+**File sharing** — attachments go in via an `osascript` clipboard copy plus Cmd+V, not by driving Finder dialogs.
 
-**Visual QA** — combines scanning, acting, and capturing into end-to-end visual checks across multi-step flows, reporting findings after each screenshot.
+**Background delegation** — long multi-step flows are dispatched to a background sonnet subagent that echoes one-line progress markers, streamed back through the Monitor tool while the main thread stays free.
+
+**Ground rules** — never resizes or rearranges windows, never works outside the selected area, never sends blind keystrokes, and verifies outcomes on screen rather than through shell commands.
 
 ## Invoke
 
 ```
-/rvanbaalen:use-agentvision
+/use-agentvision:use-agentvision
 ```
 
-The skill also activates automatically when you say things like "look at my screen", "take a screenshot", "fill this form", or "check the UI".
+The skill also activates automatically when you say things like "look at my screen", "take a screenshot", "fill this form", "check the UI", or "I have X open".

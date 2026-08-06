@@ -1,9 +1,9 @@
 name: Lottie Animator
 description: Generate professional Lottie animations from static SVGs
-version: "1.0.0"
+version: "1.1.0"
 author: obeskay
 authorUrl: "https://github.com/obeskay"
-invoke: "/rvanbaalen:lottie-animator"
-trigger: manual
+invoke: "/lottie-animator:lottie-animator"
+trigger: auto
 category: skill
 order: 2

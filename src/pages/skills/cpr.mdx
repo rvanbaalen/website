@@ -2,9 +2,9 @@
 layout: ../../layouts/SkillLayout.astro
 name: CPR
 description: Commit, push, and release in one fire-and-forget command
-version: "1.0.0"
+version: "1.2.0"
 author: Robin van Baalen
-invoke: "/rvanbaalen:cpr"
+invoke: "/cpr:cpr"
 install: "cpr@rvanbaalen"
 repo: "rvanbaalen/skills"
 category: "skill"
@@ -12,27 +12,29 @@ category: "skill"
 
 ## When to use
 
-Use when you want to commit, push, and cut a release in a single command without babysitting the process. CPR runs the entire pipeline in the background — you keep working while it analyzes your changes, commits them with conventional messages, pushes to remote, and optionally merges the release-please PR.
+Use when you want to commit, push, review, and cut a release in a single command without babysitting the process. CPR runs the entire pipeline in a background agent — you keep working while it does the round trip and reports back. It never auto-triggers; you have to invoke it.
 
 ## How it works
 
-1. Spawns a background agent running the full commit-push-release pipeline
-2. Analyzes your repo state and creates clean conventional commits
-3. Pushes to remote and conditionally triggers release-please
-4. Reports a summary when the pipeline completes
+1. Spawns one background agent carrying the full pipeline prompt and returns immediately
+2. The agent commits, pushes, reviews the pushed diff, and fixes blockers
+3. On main with release-please configured, it drives the release PR to a finished release
+4. Relays a summary when the pipeline completes
 
 ## Pipeline steps
 
-**Commit** — Reads `git status`, `git diff`, and recent log history. Groups related files into logical commits with conventional commit messages (feat, fix, refactor, chore). Never commits secrets or bypasses hooks.
+**Commit** — Reads `git status`, `git diff`, and recent log history. Groups related files into logical micro-commits with conventional messages matching the repo's existing style. Never commits secrets, never uses `--no-verify`, never adds signature trailers.
 
-**Push** — Pushes all new commits to the remote branch, setting upstream tracking if needed. Pushing to main or master is allowed.
+**Push** — Pushes to the tracking remote, setting upstream for new branches. Pushing to main or master is allowed without confirmation.
 
-**Release-please** — Only runs when on main/master and the repo uses release-please. Waits for the release-please PR to appear, merges it (directly or via auto-merge), and monitors the release workflow to completion.
+**Review & fix** — Always runs. Computes a diff range (against the remote default branch on a feature branch, since the last release tag on main) and hands it to a review-only sub-agent that returns blockers, warnings, and nits with a `PASS` / `FIX_REQUIRED` verdict. Blockers get fixed, committed as `fix(review): …`, pushed, and re-reviewed — bounded to two passes total.
 
-**Summary** — Reports back with commits made, push result, and release-please outcome.
+**Release-please** — Gated on three conditions: you're on main/master, the repo has release-please config or workflow, and no blockers remain. Polls for the `autorelease: pending` PR, merges it directly or via auto-merge, then monitors the release workflow to completion.
+
+**Summary** — Commits made, push result, review verdict per iteration with outstanding warnings and nits, release outcome, and any errors.
 
 ## Invoke
 
 ```
-/rvanbaalen:cpr
+/cpr:cpr
 ```

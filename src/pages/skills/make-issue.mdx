@@ -2,9 +2,9 @@
 layout: ../../layouts/SkillLayout.astro
 name: Make Issue
 description: Create a GitHub issue with guided template, type, and label selection
-version: "1.0.0"
+version: "1.1.0"
 author: Robin van Baalen
-invoke: "/rvanbaalen:make-issue"
+invoke: "/make-issue:make-issue"
 install: "make-issue@rvanbaalen"
 repo: "rvanbaalen/skills"
 category: "skill"
@@ -16,16 +16,20 @@ Use when you want to create a well-structured GitHub issue without leaving the t
 
 ## How it works
 
-1. Gathers repo metadata: available issue templates, types, and labels
+1. Gathers repo metadata in parallel — templates in `.github/ISSUE_TEMPLATE/`, plus issue types and labels via the GitHub GraphQL API
 2. Lets you pick a template (if available) to structure the issue body
-3. Asks for issue type and suggests relevant labels
-4. Writes a well-formatted issue body based on your description
-5. Shows a preview and asks for confirmation before submitting
+3. Asks for an issue type when the repo has them configured
+4. Auto-suggests labels and confirms them in at most three multi-select rounds (type and priority, then area and scope, then anything left)
+5. Drafts a title and body shaped to the issue kind — observed vs. expected behavior and repro steps for bugs, what and why for features
+6. Shows the draft for approval, and only creates the issue once you accept
+7. Submits in a single request — GraphQL `createIssue` when an issue type is set, `gh issue create` otherwise — then returns the URL
 
 ## Invoke
 
+Manual only — this skill is never triggered automatically.
+
 ```
-/rvanbaalen:make-issue fix login redirect loop on Safari
+/make-issue:make-issue fix login redirect loop on Safari
 ```
 
-Or without arguments to be guided interactively.
+Or without arguments to be asked what the issue is about.

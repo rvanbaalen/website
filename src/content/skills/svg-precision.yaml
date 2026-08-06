@@ -1,8 +1,8 @@
 name: SVG Precision
-description: Deterministic SVG generation, validation, and rendering
-version: "1.0.0"
+description: Build SVGs from a strict JSON spec, then validate and render them
+version: "1.1.0"
 author: dkyazzentwatwa
-invoke: "/rvanbaalen:svg-precision"
-trigger: manual
+invoke: "/svg-precision:svg-precision"
+trigger: auto
 category: skill
 order: 9

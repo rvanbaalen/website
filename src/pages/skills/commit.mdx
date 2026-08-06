@@ -2,9 +2,9 @@
 layout: ../../layouts/SkillLayout.astro
 name: Commit
 description: Micro-commit with conventional commit messages
-version: "1.2.1"
+version: "1.4.0"
 author: Robin van Baalen
-invoke: "/rvanbaalen:commit"
+invoke: "/commit:commit"
 install: "commit@rvanbaalen"
 repo: "rvanbaalen/skills"
 category: "skill"
@@ -12,25 +12,31 @@ category: "skill"
 
 ## When to use
 
-Use when you want to commit your changes as clean, atomic micro-commits with conventional commit messages. Instead of one big commit, this skill analyzes your diff, groups related files, and proposes individual commits for each logical change.
+Use when you want to commit your changes as clean, atomic micro-commits with conventional commit messages. Instead of one big commit, the skill scopes to the files the current session actually touched, groups related changes, and commits each logical unit separately.
 
 ## How it works
 
-1. Analyzes your staged and unstaged changes via `git status` and `git diff`
-2. Groups related files that belong together in a single commit
-3. Proposes a conventional commit message for each group (feat, fix, docs, etc.)
-4. Asks for approval before committing each group
-5. Pushes to remote if the branch tracks an upstream
+1. Picks a mode first — before running any git command
+2. Builds the set of files edited during this session and diffs it against `git status`
+3. Asks what to do with pre-existing dirty files the session never touched (session only, include all, or pick per file)
+4. Analyzes the in-scope diff and recent `git log` to match the repo's commit style
+5. Groups related files — tests with their source, lockfiles with their manifest, formatting on its own
+6. Proposes a conventional commit message per group, then stages by explicit path and commits
+7. Offers to push once the commits are in
 
 ## Modes
 
 - **Interactive** — proposes each commit for your approval before executing
-- **Non-interactive** — commits in the background so you can keep working
+- **Non-interactive** — dispatches a background agent that auto-approves sensible commits, skips ambiguous ones, and streams progress back as it goes. It won't push to `main` or `master`.
+
+## Scoping
+
+The skill never uses `git add .`, `-A`, or `-u`. Every commit stages explicit paths from the session-scoped file list, so unrelated work in your tree stays untouched. Files that look like secrets are never committed in non-interactive mode, and git hooks are never skipped.
 
 ## Invoke
 
 ```
-/rvanbaalen:commit
-/rvanbaalen:commit i    # interactive mode
-/rvanbaalen:commit ni   # non-interactive (background)
+/commit:commit
+/commit:commit i    # interactive mode
+/commit:commit ni   # non-interactive (background)
 ```
