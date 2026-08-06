@@ -99,7 +99,7 @@ You are generating website content for a Claude Code skill page. Return ONLY the
 **Author:** {author_name} (MUST come from plugin.json `author.name` field — each plugin may have a different author)
 **Author URL:** {author_url or "none"} (from plugin.json `author.url` field, if present)
 **Category:** {"agent" if agents/ directory exists, otherwise "skill"}
-**Invoke command:** {invoke_command} (use "/rvanbaalen:{name}" for skills, "/{name}" for agents like pm and cofounder)
+**Invoke command:** {invoke_command} (use "/{name}:{skill}" for skills, "/{name}" for agents like pm and cofounder)
 **Install command:** {name}@rvanbaalen
 
 **Source SKILL.md content:**
@@ -185,9 +185,12 @@ Before dispatching, find the highest `order` value across all existing `.yaml` f
 
 ### Determining invoke command
 
-- Most skills use `/rvanbaalen:{name}` (e.g., `/rvanbaalen:commit`, `/rvanbaalen:lottie-animator`)
-- Agent plugins like `pm` and `cofounder` use `/{name}` (e.g., `/pm`, `/cofounder`)
-- Check the main SKILL.md frontmatter `name` field and existing patterns to determine which format to use. If the plugin has an `agents/` directory, it typically uses the short form.
+Claude Code resolves slash commands as `/{plugin}:{skill}`. The marketplace name (`rvanbaalen`) is **not** part of the command — it only appears in the install command (`{name}@rvanbaalen`).
+
+- Most plugins ship one skill named after the plugin, so the command is `/{name}:{name}` (e.g. `/commit:commit`, `/lottie-animator:lottie-animator`)
+- Agent plugins like `pm` and `cofounder` use the short form `/{name}` (e.g. `/pm`, `/cofounder`)
+- Sub-skills of a multi-skill plugin are `/{plugin}:{sub}` (e.g. `/pm:plan`, `/cofounder:spar`)
+- If the plugin has an `agents/` directory, it typically uses the short form.
 
 ## Phase 4: Pass 2 — Per-Skill Review
 
