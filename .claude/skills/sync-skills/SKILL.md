@@ -77,7 +77,7 @@ Each subagent is a `general-purpose` agent. Its prompt must include all the info
 For each skill, read these files and include their contents in the subagent prompt:
 
 1. The marketplace.json entry for this plugin (you already have this from Phase 1)
-2. The plugin's `.claude-plugin/plugin.json` at `plugins/{name}/.claude-plugin/plugin.json` — this is the **authoritative source for the author**. The `author` object always has a `name` field and may also have a `url` field. Extract both. Do NOT assume the author or copy it from another skill. Different plugins have different authors (e.g., `ocr-document-processor` and `svg-precision` are authored by `dkyazzentwatwa`, not Robin van Baalen).
+2. The plugin's `.claude-plugin/plugin.json` at `plugins/{name}/.claude-plugin/plugin.json` — this is the **authoritative source for the author**. The `author` object always has a `name` field and may also have a `url` field. Extract both. Do NOT assume the author or copy it from another skill. Different plugins have different authors (e.g., `svg-precision` is authored by `dkyazzentwatwa` and `lottie-animator` by `obeskay`, not Robin van Baalen).
 3. The plugin's main SKILL.md at `plugins/{name}/skills/{name}/SKILL.md`
 4. For multi-skill plugins (check if `plugins/{name}/skills/` contains multiple subdirectories):
    - Read ALL sub-skill SKILL.md files (just the frontmatter `name` and `description` fields is enough)

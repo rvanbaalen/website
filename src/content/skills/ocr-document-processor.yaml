@@ -1,8 +1,0 @@
-name: OCR Document Processor
-description: Extract text from images and scanned PDFs using Tesseract OCR
-version: "1.1.0"
-author: dkyazzentwatwa
-invoke: "/ocr-document-processor:ocr-document-processor"
-trigger: manual
-category: skill
-order: 8
