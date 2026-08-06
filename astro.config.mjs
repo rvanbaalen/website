@@ -96,6 +96,11 @@ const redirects = {
   "/source-to-llm": "/projects/source-to-llm",
   "/transitionjs": "/projects/transitionjs",
 
+  // Delisted skills — page removed, the catalogue is the closest equivalent. Listed
+  // per slug rather than as a /skills/* splat, which would capture the live pages
+  // too: Cloudflare follows a matching redirect ahead of a matching asset.
+  "/skills/ocr-document-processor": "/skills",
+
   // Archived projects — no detail page, listed on the archive
   "/custom-scroll": "/open-source/archive",
   "/portals": "/open-source/archive",

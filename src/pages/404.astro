@@ -2,6 +2,13 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
+{/* Retired skills keep earning traffic after their page is deleted. A _redirects
+    splat can't do this: Cloudflare follows redirects even when an asset matches,
+    so /skills/* would hijack the 20 live pages too. Only a real 404 lands here. */}
+<script is:inline>
+  if (location.pathname.startsWith("/skills/")) location.replace("/skills");
+</script>
+
 <BaseLayout title="Not Found — Robin van Baalen">
   <div class="flex flex-col items-start py-20">
     <p class="mb-4 font-sans text-sm text-accent">404</p>
