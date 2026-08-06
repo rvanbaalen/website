@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.17.0](https://github.com/rvanbaalen/website/compare/robinvanbaalen-website-v1.16.0...robinvanbaalen-website-v1.17.0) (2026-08-06)
+
+
+### Features
+
+* **skills:** remove delisted ocr-document-processor skill ([946717d](https://github.com/rvanbaalen/website/commit/946717d42a99589d2b961c631faa17c99ac4d127))
+
+
+### Bug Fixes
+
+* **skills:** redirect delisted skill URLs instead of 404ing ([8d36db0](https://github.com/rvanbaalen/website/commit/8d36db03f5fa3822c984bb1ca5a786ac53dd12a4))
+
 ## [1.16.0](https://github.com/rvanbaalen/website/compare/robinvanbaalen-website-v1.15.1...robinvanbaalen-website-v1.16.0) (2026-08-06)
 
 
