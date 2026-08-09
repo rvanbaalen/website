@@ -38,4 +38,8 @@ wkhtmltopdf never used templates. It rendered headers and footers as full pages 
 
 ## How it was built
 
-Agentic tooling, with Fable 5 doing the work: engine research, the Go, the release pipeline. I set the constraints and reviewed the output, which is where most of the real decisions happened. A weekend side project that turned out genuinely usable.
+Agentic tooling, with Fable 5 doing the work: engine research, the Go, the release pipeline. The constraints came from me, and that is the part that decided whether any of it worked.
+
+Setting the drop-in requirement before a line of code existed. Killing the QtWebKit and QtWebEngine routes on the evidence rather than trying them for a week each. Reading how wkhtmltopdf actually composited its headers, instead of accepting Chromium's template API because it was there. Recognising that the first footer output was wrong when it looked plausible enough to ship.
+
+Ask a model for a PDF converter and you get a toy. It moves fast in whatever direction you point it, which only helps if you already know what correct looks like.
