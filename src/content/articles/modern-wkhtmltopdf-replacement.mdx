@@ -42,8 +42,8 @@ The result is [bilihtmltopdf](https://github.com/rvanbaalen/bilihtmltopdf): a si
 curl -fsSL https://raw.githubusercontent.com/rvanbaalen/bilihtmltopdf/main/setup.sh | bash
 ```
 
-As drop-in replacements go, this is about as close as the category gets. Same command, same path, same flags; nothing upstream can tell the difference. It renders your CSS the way a browser from this decade does rather than one from 2011 — which is the whole reason to switch — while the interface it presents to everything that calls it stays exactly where it was.
+It's a drop-in: same command, same path, same flags, so nothing that calls it has to change. It renders with a current Chromium, so the CSS the old engine couldn't handle just works. That's the whole idea.
 
-What I find more interesting than the tool is how it got built. bilihtmltopdf came out of a focused run of prompting Fable 5, Anthropic's model — and not the "build me a PDF converter" kind of prompt, which gets you a toy. The work was in the direction: pinning down the exact drop-in constraint, having it research and rule out the QtWebKit and QtWebEngine dead ends with real sources, catching that Chromium's native footer feature was a trap, and steering toward the full-page composite once we understood what wkhtmltopdf had actually been doing under the hood. It wrote the Go, ran the engine research, and wired up the releases; the judgment about what to build, and about when an answer was wrong, stayed with me. Given the right direction, that's a lot of tool for not a lot of keystrokes.
+I built it by prompting Fable 5, Anthropic's model — it did the research, the Go, and the release plumbing, and I steered what it should do and caught it when it was wrong. A weekend side project that turned out to be genuinely usable.
 
-The binary on my server is called wkhtmltopdf again. The code that calls it never noticed a thing. The designer's container query renders. And the boring, load-bearing, absolutely-critical job of turning HTML into a payslip is getting done again — same tool, same command, newer engine.
+The binary on my server is called wkhtmltopdf again, and the code that calls it never noticed. Same tool, same command, newer engine.
