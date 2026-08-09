@@ -1,6 +1,6 @@
 ---
 title: "wkhtmltopdf is dead. I kept using it anyway."
-description: "There's a binary on my server that was archived in 2023 and frozen on a 2011 browser. I didn't want to migrate off it. So I replaced the engine instead."
+description: "wkhtmltopdf was archived in 2023 and renders with a browser engine from 2011. Instead of migrating off it, I replaced the engine and kept the command line."
 date: 2026-08-09
 tags:
   - PDF
@@ -10,40 +10,32 @@ tags:
 draft: false
 ---
 
-There's a binary on one of my servers that hasn't shipped a release since 2020. The project was archived in 2023. I have no intention of removing it. It's called wkhtmltopdf, and it turns HTML into PDFs: payslips, invoices, the boring documents a business actually runs on. It has done that job without complaint for years.
+wkhtmltopdf turns HTML into PDFs. Payslips, invoices, the boring documents a business runs on. It was archived in 2023, and the browser engine inside it is a WebKit build from roughly fourteen years ago.
 
-The thing about a dependency like that is you forget it's there. Nobody puts "HTML to PDF" on a roadmap. It lives in the basement of the stack, doing its one job, until the day a designer ships a stylesheet with a container query in it and the PDF comes out looking like it was rendered in 2011.
+No CSS custom properties. No working `calc()`. No Grid. It will never render `@layer` or a container query, because those need a browser from 2022 or later.
 
-Which, it turns out, it was.
+The usual advice is to migrate to headless Chrome, WeasyPrint or Gotenberg. Good advice for a new project. Less good when years of production have wired `--header-html`, `--footer-center "[page] of [topage]"`, `cover` and `toc` into code nobody has opened since 2019.
 
-wkhtmltopdf renders with a patched Qt 4.8, and the browser engine bolted inside it is a build of WebKit from roughly fourteen years ago. It has no CSS custom properties, no working `calc()`, no Grid. It will never render `@layer` or a container query, because those need a browser from 2022 or later, and this one is a fossil. It also carries a couple of unpatched security holes, one of them scored a cheerful 9.8. Nobody should be excited about this tool in 2026.
+The tool isn't the problem. The engine is. So I kept the command line and replaced what was behind it.
 
-So you migrate. That's the advice, and it's good advice. The modern options are strong: headless Chrome, WeasyPrint, Gotenberg. If you're starting something new, pick one and don't look back.
+## bilihtmltopdf
 
-But I wasn't starting something new. I had a working system, and "working" is doing a lot of load-bearing work in that sentence. Years of production had taught wkhtmltopdf a private language of `--header-html`, `--footer-center "[page] of [topage]"`, `cover`, `toc`, and a couple dozen other switches, all wired into calling code that shells out to a path and trusts the result. Migrating means more than swapping a library. It means ripping out the PDF layer of an application nobody has opened since 2019, re-testing every template, and hoping you didn't miss the one report that only runs on the last day of the quarter.
+[bilihtmltopdf](https://github.com/rvanbaalen/bilihtmltopdf) is a single Go binary that answers to `wkhtmltopdf`. Same flags, same path, same behaviour, rendered by a current Chromium over the DevTools Protocol with `pdfcpu` assembling the pages.
 
-That's a lot of risk, and for what? The tool works. Only the engine has rotted. The command line, which is threaded through everything, is fine. So the goal was never to replace wkhtmltopdf, just the one part of it that went bad, and to leave the rest alone.
-
-That gave me the rule I started from: a real drop-in. Same command-line grammar, so nothing that calls it changes. The same binary at `/usr/local/bin/wkhtmltopdf`, so the calling code never knows anything happened. One installable file, no container or daemon or sidecar. Gotenberg is a lovely piece of engineering, but a background HTTP service is one more moving part and one more thing to page you at 3am. For a system that already calls a local binary, that isn't minimum impact. It's a new dependency in a trenchcoat.
-
-The engine had to be Chromium. The maintained QtWebKit fork froze on a 2016 engine that still can't do what I needed. Chromium-inside-Qt has the CSS but deliberately drops the header, footer, and outline hooks wkhtmltopdf depends on, a gap that's been open in Qt's tracker since 2017 with no fix in nine years. Both were dead ends. So I drove headless Chromium directly over the DevTools Protocol, from a small Go program that speaks wkhtmltopdf's arguments on one end and Chromium on the other, with `pdfcpu` stitching the pages together.
-
-Most of the switches were easy. Paper size, margins, zoom, cookies, JavaScript timing: Chromium has an answer for all of them. The part that fought back was headers and footers.
-
-Chromium has a built-in header and footer feature, and it is a trap. It runs in a cramped sandbox that can't load your stylesheets and ignores absolute positioning. Hand it a real footer, the kind with a `<base href>`, a linked CSS bundle, and `position: absolute; bottom: 0`, and you get naked text shoved into a corner. I shipped exactly that on the first pass, looked at it, and knew it was wrong.
-
-The fix was to stop being clever and go read what wkhtmltopdf actually did. It never used a template mechanism at all. It rendered your header and footer as full pages, with their real CSS, and stamped them onto each sheet. So now I do the same. I render the footer as its own complete page, let its stylesheets load the way they would in any browser, make its background transparent, and composite it over every content page. The footer lands where the CSS says it should, because it's finally being rendered by the same kind of engine the author was looking at when they wrote it.
-
-Something nice came out of that, the way it sometimes does when you stop fighting the design. Because the compositing runs over the whole merged document rather than each piece on its own, page numbers now count continuously across the cover, the table of contents, and the body. That's the exact thing the naive approach gets wrong, and I didn't build it on purpose. It fell out of doing the rest correctly.
-
-The result is [bilihtmltopdf](https://github.com/rvanbaalen/bilihtmltopdf), a single Go binary that answers to `wkhtmltopdf`. It keeps the command line, the headers and footers, cover pages, table of contents, outlines, and links. It renders with today's Chromium, so `@layer` and container queries and custom properties just work. Legacy switches with no modern meaning warn and carry on instead of blowing up, so nothing old breaks, and a `--strict` flag makes them fatal when you want CI to be picky. It bundles a headless Chromium, so it works offline from a single install, with no browser to provision and no service to babysit. You install it with one line, and it backs up whatever was there so you can undo it in five seconds:
+It keeps headers and footers, cover pages, table of contents, outlines and links. Modern CSS works. Legacy switches with no modern equivalent warn and carry on instead of failing, and `--strict` makes them fatal if CI should be picky. A headless Chromium ships with it, so there's no browser to provision and no service to run.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/rvanbaalen/bilihtmltopdf/main/setup.sh | bash
 ```
 
-That's the whole idea: keep the interface, replace the engine.
+The installer backs up whatever binary was there, so undoing it takes five seconds.
 
-I built it by prompting Fable 5, Anthropic's model. It did the research, wrote the Go, and set up the releases; I steered the direction and caught it when it went wrong. A weekend side project that turned out genuinely usable.
+## The part that fought back
 
-The binary on my server is called wkhtmltopdf again, and nothing that calls it noticed the difference. Which was the entire point.
+Chromium has a built-in header and footer feature. It runs in a sandbox that can't load your stylesheets and ignores absolute positioning, so a real footer comes out as naked text in a corner. I shipped that first and it was wrong.
+
+wkhtmltopdf never used templates. It rendered headers and footers as full pages with their real CSS and stamped them onto each sheet. Doing the same fixed the layout, and because the compositing runs over the merged document, page numbers now count continuously across cover, contents and body.
+
+## Built by prompting
+
+I built this with Fable 5. It did the research, wrote the Go and set up the releases; I steered the direction and caught it when it went wrong. A weekend side project that turned out genuinely usable.
