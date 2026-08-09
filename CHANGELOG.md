@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.18.0](https://github.com/rvanbaalen/website/compare/robinvanbaalen-website-v1.17.0...robinvanbaalen-website-v1.18.0) (2026-08-09)
+
+
+### Features
+
+* add bilihtmltopdf project and its launch article ([3626b7b](https://github.com/rvanbaalen/website/commit/3626b7b05763ba90016b759e2b18f4420cebe653))
+
 ## [1.17.0](https://github.com/rvanbaalen/website/compare/robinvanbaalen-website-v1.16.0...robinvanbaalen-website-v1.17.0) (2026-08-06)
 
 
