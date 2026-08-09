@@ -1,0 +1,12 @@
+name: bilihtmltopdf
+description: A drop-in replacement for the archived wkhtmltopdf CLI — same command line, modern Chromium engine. Renders HTML to PDF with support for modern CSS (@layer, @container, custom properties, grid) that the 2011-era WebKit engine never could
+repo: https://github.com/rvanbaalen/bilihtmltopdf
+tech:
+  - Go
+  - CLI
+  - Chromium
+  - PDF
+category: cli
+featured: true
+order: 1
+hover_detail: CLI · Drop-in wkhtmltopdf replacement with a modern engine

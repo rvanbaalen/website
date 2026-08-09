@@ -1,0 +1,63 @@
+---
+title: "Replacing wkhtmltopdf without touching production"
+description: "wkhtmltopdf is archived and frozen on a 2011 browser engine. Here's why I built a drop-in replacement instead of migrating away from it."
+date: 2026-08-09
+tags:
+  - PDF
+  - Go
+  - Chromium
+  - Open Source
+draft: false
+---
+
+For the better part of a decade, wkhtmltopdf was the pragmatic answer to "how do we turn this HTML into a PDF on the server?" It was a single binary, it took a command line, and it just worked. A lot of production systems — invoicing, reporting, payroll — quietly depend on it to this day.
+
+In January 2023 it was archived. No more releases, no more fixes. And the reason it was archived is the same reason it had already become a liability: its rendering engine is a patched Qt 4.8 shipping a build of WebKit from roughly **2011**. That engine predates CSS custom properties, `calc()`, real flexbox, and CSS Grid entirely. It will never render `@layer` or a container query, because those require a browser engine from 2022 or later. On top of that, it carries unpatched CVEs, including an SSRF rated 9.8.
+
+If your templates are simple, none of this bites you. But the moment a designer reaches for anything from the last ten years of CSS, you're stuck explaining why the PDF looks nothing like the browser.
+
+## The obvious fix is the expensive one
+
+The industry has moved on, and the replacements are genuinely good: headless Chrome, WeasyPrint, Gotenberg. If you're starting fresh, use one of those.
+
+The problem is that none of them are *wkhtmltopdf*. They don't speak its command line. They don't understand `--header-html`, `--footer-center "[page] of [topage]"`, `cover`, `toc`, or the dozens of other switches that a mature production integration has accreted over years. Migrating isn't "swap the binary" — it's rewriting the PDF-generation layer of an application that has been working fine, retesting every template, and hoping you didn't miss an edge case in code nobody has touched since 2019.
+
+That's a lot of risk and engineering time to spend on something whose only real fault is a stale engine. The engine is the part that's broken. The interface is the part that works. So the interesting question isn't "what do we migrate to" — it's "can we replace only the broken part?"
+
+## The constraint: minimum architectural impact
+
+I set one hard requirement before writing a line of code: it has to be a genuine drop-in.
+
+That means the same command-line grammar, so existing invocations run unchanged. It means the same installed binary at `/usr/local/bin/wkhtmltopdf`, so the calling code — which usually just shells out to that path — needs no changes at all. It means a single installable artifact, **no containers and no daemon**, because the whole appeal of the original was that it was one file you could drop onto a server. A sidecar HTTP service like Gotenberg is a fine architecture, but it's a new moving part, a new network hop, and a new thing to operate. For a system that today calls a local binary, that's not minimum impact — it's a new dependency wearing a trenchcoat.
+
+The goal was to make the migration a matter of replacing one binary and re-approving the output, and nothing else.
+
+## Ruling out the tempting dead ends
+
+The first instinct is to keep WebKit and just move to a newer one. It doesn't survive contact with the facts. The maintained QtWebKit fork ("5.212") tops out at a 2016 engine and stopped receiving updates in 2020 — it still can't do `@layer` or container queries, so it fails the actual requirement. QtWebEngine (Chromium inside Qt) *has* the CSS, but its PDF printing API deliberately omits the header/footer and outline hooks wkhtmltopdf is built on; that gap has sat open in Qt's tracker since 2017, and nine years of people asking has produced no working port.
+
+So the engine had to be **headless Chromium**, driven directly over the Chrome DevTools Protocol — not through Qt's lossy wrapper. That gives full modern CSS and full access to Chromium's print pipeline. The work, then, is a Go program that parses wkhtmltopdf's arguments, drives Chromium to render, and reassembles the PDF — with `pdfcpu` for merging, outlines, and encryption. The stable seam is wkhtmltopdf's command line and its C-ABI keys; everything behind it is new.
+
+## The part that was genuinely hard
+
+Most switches map cleanly. Paper size, margins, zoom, media type, cookies, JavaScript delays — all of these have direct Chromium equivalents. The one that fought back was headers and footers.
+
+Chromium's print API has a native header/footer feature, and it's a trap. It renders in a cramped, isolated context that can't load your stylesheets and ignores absolute positioning. Feed it a real-world footer — the kind with a `<base href>`, a linked CSS bundle, and `position: absolute; bottom: 0` — and you get unstyled text jammed in a corner. I shipped that first, and it was wrong.
+
+The fix came from understanding what wkhtmltopdf actually did. It never used a template mechanism. It rendered your header and footer HTML as **full pages**, with their real CSS, and composited them over each sheet. So that's what I do now: render the footer as its own full page (its stylesheets load normally, its CSS positions itself exactly as the author intended), make its background transparent, and overlay it onto every content page with `pdfcpu`. The footer lands where the CSS says it should, because it's the same rendering path the author designed against.
+
+Doing it this way paid an unexpected dividend. Because the compositing happens on the *merged* document, page numbers now run continuously across cover, table-of-contents, and body — the exact thing the naive per-document approach gets wrong. The right architecture made a hard feature fall out for free.
+
+## The result
+
+[bilihtmltopdf](https://github.com/rvanbaalen/bilihtmltopdf) is a single Go binary that answers to `wkhtmltopdf`. It keeps the command line, headers and footers, cover pages, table-of-contents generation, PDF outlines, and links. It renders with today's Chromium, so `@layer`, `@container`, custom properties, and Grid simply work. Legacy switches with no modern equivalent warn and continue rather than failing, so old invocations don't break; a `--strict` mode turns those warnings fatal for CI. Releases ship as deb, rpm, and archives that bundle a headless Chromium, so the tool still works offline from one install — no browser to provision, no service to run.
+
+Installation is a single command, and it backs up any existing binary so rollback is trivial:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/rvanbaalen/bilihtmltopdf/main/setup.sh | bash
+```
+
+I'll be honest about the one thing you can't avoid: **any** move off the 2011 engine changes how pages render. Blink measures text differently, and there's no more "smart shrinking." Your documents will shift, sometimes just a little. That's inherent to leaving a decade-old engine behind, not specific to this tool — so the migration is "replace the binary, then diff your templates side by side and re-approve them." That's the whole migration. Compared to rewriting a production PDF layer, it's a rounding error.
+
+wkhtmltopdf solved the right problem with the wrong engine. bilihtmltopdf keeps the solution and swaps the engine — which is, I think, exactly what a drop-in replacement should be.
