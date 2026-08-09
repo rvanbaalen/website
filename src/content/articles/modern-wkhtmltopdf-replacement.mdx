@@ -42,8 +42,8 @@ The result is [bilihtmltopdf](https://github.com/rvanbaalen/bilihtmltopdf): a si
 curl -fsSL https://raw.githubusercontent.com/rvanbaalen/bilihtmltopdf/main/setup.sh | bash
 ```
 
-One thing worth knowing going in: your documents will render like it's 2026, not 2011, which means they won't be pixel-identical to the old output. That's the whole point — but it does mean a slightly wider character here, a different line-wrap there, and on a long report those small differences can shift where a page breaks. wkhtmltopdf also used to silently scale slightly-too-wide content down to fit; a modern engine renders your CSS as written instead, so a layout that quietly leaned on that trick might need a real fix. (Those `--zoom 1.5` flags in old templates? That's what they were papering over.)
+One thing to plan for: your documents render on a modern engine now, so they won't be pixel-identical to the old output. Chromium renders your CSS as written — no more silent down-scaling of slightly-too-wide content — so text metrics and page breaks can shift, and a layout that leaned on that old behavior may want a small adjustment. (Those `--zoom 1.5` flags in legacy templates were compensating for exactly this.)
 
-So the migration is short and boring: install the new binary, run your real documents through it and the old one, put the PDFs side by side, and touch up the handful of spots that moved — usually a margin or a zoom, often nothing at all. Then approve them and move on. That's the whole job, and next to rewriting a production PDF layer it's an afternoon.
+The migration is straightforward: install the binary, render your documents through the new and old versions, compare side by side, and adjust the few spots that moved — typically a margin or a zoom. Then ship it. It's an afternoon of work, not a rewrite.
 
 The binary in my basement is called wkhtmltopdf again. The code that calls it never noticed a thing. The designer's container query renders. And the boring, load-bearing, absolutely-critical job of turning HTML into a payslip is getting done again — same tool, same command, newer brain. Which is all I ever wanted from it.
