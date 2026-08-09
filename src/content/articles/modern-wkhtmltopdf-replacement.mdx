@@ -36,6 +36,6 @@ Chromium has a built-in header and footer feature. It runs in a sandbox that can
 
 wkhtmltopdf never used templates. It rendered headers and footers as full pages with their real CSS and stamped them onto each sheet. Doing the same fixed the layout, and because the compositing runs over the merged document, page numbers now count continuously across cover, contents and body.
 
-## Built by prompting
+## How it was built
 
-I built this with Fable 5. It did the research, wrote the Go and set up the releases; I steered the direction and caught it when it went wrong. A weekend side project that turned out genuinely usable.
+Agentic tooling, with Fable 5 doing the work: engine research, the Go, the release pipeline. I set the constraints and reviewed the output, which is where most of the real decisions happened. A weekend side project that turned out genuinely usable.
