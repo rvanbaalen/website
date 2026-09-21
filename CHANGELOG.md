@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.18.0](https://github.com/rvanbaalen/website/compare/robinvanbaalen-website-v1.17.0...robinvanbaalen-website-v1.18.0) (2026-09-21)
+
+
+### Features
+
+* add bilihtmltopdf project and its launch article ([3626b7b](https://github.com/rvanbaalen/website/commit/3626b7b05763ba90016b759e2b18f4420cebe653))
+
+
+### Bug Fixes
+
+* link the hashparser card to its project page ([ad79ce4](https://github.com/rvanbaalen/website/commit/ad79ce4548b0f0f7056743338ad71ea81357b07c))
+* **seo:** extend meta descriptions to 110-160 characters ([e8d7c62](https://github.com/rvanbaalen/website/commit/e8d7c62a06daff027103cfc65f1f6e567472a852))
+* **seo:** list subdomain sitemaps in robots.txt and add a subdomain sitemap ([3b799e3](https://github.com/rvanbaalen/website/commit/3b799e3d9e1fea439b0eb8eefc58fd1f30344e53))
+
 ## [1.17.0](https://github.com/rvanbaalen/website/compare/robinvanbaalen-website-v1.16.0...robinvanbaalen-website-v1.17.0) (2026-08-06)
 
 
