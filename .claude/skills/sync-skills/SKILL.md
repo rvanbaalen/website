@@ -138,6 +138,7 @@ Frontmatter:
 - layout: ../../layouts/SkillLayout.astro
 - name: {display_name}
 - description: {short_description}
+- metaDescription: "{meta_description}" (110-160 characters, SEO meta/og description only; a full sentence such as "A Claude Code skill that ...")
 - version: "{version}"
 - author: {author_name}
 - authorUrl: "{author_url}" (only include this field if a URL is present in plugin.json)

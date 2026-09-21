@@ -7,6 +7,7 @@ interface Props {
   frontmatter: {
     name: string;
     description: string;
+    metaDescription?: string;
     repo: string;
     version?: string;
     tech?: string[];
@@ -14,7 +15,7 @@ interface Props {
   };
 }
 
-const { name, description, repo, version, tech, website } = Astro.props.frontmatter;
+const { name, description, metaDescription, repo, version, tech, website } = Astro.props.frontmatter;
 
 const pagePath = normalizePath(Astro.url.pathname);
 const pageUrl = new URL(pagePath, Astro.site).href;
@@ -28,7 +29,7 @@ const jsonLd = [
 ];
 ---
 
-<BaseLayout title={`${name} — Robin van Baalen`} description={description} jsonLd={jsonLd}>
+<BaseLayout title={`${name} — Robin van Baalen`} description={metaDescription ?? description} jsonLd={jsonLd}>
   <article>
     <header class="mb-10">
       <a
