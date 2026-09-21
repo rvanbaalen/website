@@ -1,6 +1,6 @@
 name: HashParser
 description: Lightweight JavaScript library for managing URL hash parameters, with support for encoding and decoding
-url: https://hashparser.js.org
+url: /projects/hashparser
 repo: https://github.com/rvanbaalen/hashparser
 tech:
   - TypeScript
