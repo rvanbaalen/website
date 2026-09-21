@@ -2,3 +2,7 @@ User-agent: *
 Allow: /
 
 Sitemap: https://robinvanbaalen.nl/sitemap-index.xml
+Sitemap: https://robinvanbaalen.nl/sitemap-subdomains.xml
+Sitemap: https://laurelproxy.robinvanbaalen.nl/sitemap-index.xml
+Sitemap: https://agentvision.robinvanbaalen.nl/sitemap-index.xml
+Sitemap: https://curacao-election-2025.robinvanbaalen.nl/sitemap.xml
